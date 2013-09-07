@@ -99,27 +99,32 @@
                     <ul class="steps">
                         <li data-target="#import" class="active">
                             <span>
-                                <img class="step-img" src="{{ STATIC_URL }}img/choose_files.png">
+                                <img class="step-img"
+                                     src="{{ STATIC_URL }}img/choose_files.png">
                             </span>
                             Import
                             <span class="chevron"></span>
                         </li>
                         <li data-target="#analyze">
                             <span>
-                                <img class="step-img" src="{{ STATIC_URL }}img/analyze.png">
+                                <img class="step-img"
+                                     src="{{ STATIC_URL }}img/analyze.png">
                             </span>
                             Analyze
                             <span class="chevron"></span>
                         </li>
                         <li data-target="#experiment">
                             <span>
-                                <img class="step-img" src="{{ STATIC_URL }}img/show_results.png">
+                                <img class="step-img"
+                                     src="{{ STATIC_URL }}img/show_results.png">
                             </span>
                             Experiment
                             <span class="chevron"></span></li>
                     </ul>
                     <div class="actions">
-                        <button type="button" class="btn btn-mini btn-next" data-last="Visualize">
+                        <button type="button"
+                                class="btn btn-mini btn-next"
+                                data-last="Visualize">
                             Next<i class="icon-arrow-right"></i></button>
                     </div>
                 </div>
@@ -129,37 +134,45 @@
                             <div class="navbar">
                                 <div class="navbar-inner">
                                     <a class="brand">
-                                        Add files to the list so they will be imported.
+                                        Add files to the list so they will
+                                        be imported.
                                     </a>
                                     <ul class="nav pull-right">
                                         <li>
                                             <a href="javascript:void(0);">
-                                                <i class="icon-file"></i> Add File(s)
+                                                <i class="icon-file"></i>
+                                                Add File(s)
                                             </a>
                                         </li>
                                         <li>
                                             <a href="javascript:void(0);">
-                                                <i class="icon-folder-open"></i> Add Folder(s)
+                                                <i class="icon-folder-open"></i>
+                                                Add Folder(s)
                                             </a>
                                         </li>
                                         <li>
-                                            <a id="remove-selected" href="javascript:void(0);"
+                                            <a id="remove-selected"
+                                               href="javascript:void(0);"
                                                data-bind="click: removeSelected">
-                                                <i class="icon-remove"></i> Remove Selected
+                                                <i class="icon-remove"></i>
+                                                Remove Selected
                                             </a>
                                         </li>
                                     </ul>
                                 </div>
                             </div>
-                            <table data-bind="tableData: items" class="table display datatable"
+                            <table data-bind="tableData: items"
+                                   class="table display datatable"
                                    id="files-list">
-                                <tbody data-bind="selectedRows: selectedItems"></tbody>
+                                <tbody data-bind="selectedRows: selectedItems">
+                                </tbody>
                             </table>
                         </div>
                     </div>
                     <div class="step-pane" id="analyze">
                         <div class="well">
-                            <table class="table display datatable" id="pieces-list"></table>
+                            <table class="table display datatable"
+                                   id="pieces-list"></table>
                         </div>
                     </div>
                     <div class="step-pane" id="experiment">This is step 3</div>
