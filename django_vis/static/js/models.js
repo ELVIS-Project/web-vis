@@ -19,6 +19,7 @@ function ListOfFiles () {
     SelectableArray.call(this);
     this.items = ko.observableArray([
         {"Filename": "bwv77.mxl"},
+        {"Filename": "madrigal51.mxl"}
     ]);
 }
 ListOfFiles.prototype = Object.create(SelectableArray.prototype);

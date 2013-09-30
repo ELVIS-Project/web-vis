@@ -68,6 +68,16 @@
                         });
                         break;
                     case 2:
+                        $.ajax({
+                            method: 'get',
+                            url: '/api/analyze',
+                            data: {
+                                'filenames': _.map(files_list.items(),
+                                        function (element) { return element.Filename; })
+                            },
+                            dataType: "json",
+                            success: console.log("yay")
+                        });
                         break;
                 }
             });

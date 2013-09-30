@@ -47,6 +47,10 @@ def import_files(request):
          "Repeat Identical": False}
         for ind_pc in indexed_pcs
     ], 200
+    
+@decorators.json_view
+def analyze(request):
+    return 200
 
 
 class MainView(generic.TemplateView):

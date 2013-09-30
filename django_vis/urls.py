@@ -34,7 +34,8 @@ urlpatterns = patterns(
     '',
     # Examples:
     url(r'^$', views.MainView.as_view(), name='main'),
-    url(r'^api/import/?$', views.import_files, name='import')
+    url(r'^api/import/?$', views.import_files, name='import'),
+    url(r'^api/analyze/?$', views.analyze, name='analyze'),
     # url(r'^django_vis/', include('django_vis.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
