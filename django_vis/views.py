@@ -7,7 +7,7 @@
 # Filename:               django-vis/views.py
 # Purpose:                ????
 #
-# Copyright (C) 2013 Jamie Klassen
+# Copyright (C) 2013 Jamie Klassen, Saining Li
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -28,6 +28,7 @@ from django.views import generic
 from jsonview import decorators
 import settings
 from vis.models import indexed_piece
+from vis.analyzers import indexers
 
 
 @decorators.json_view
@@ -35,7 +36,9 @@ def import_files(request):
     filepaths = [os.path.join(settings.TEST_CORPUS_PATH, fname)
                  for fname in request.GET.getlist('filenames[]')]
     indexed_pcs = [indexed_piece.IndexedPiece(fpath) for fpath in filepaths]
-    return 200, [
+    for piece in indexed_pcs:
+        piece.get_data([indexers.noterest.NoteRestIndexer])
+    return [
         {"Path": ind_pc.metadata('pathname'),
          "Title": ind_pc.metadata('title'),
          "Part Names": ind_pc.metadata('parts'),
@@ -43,7 +46,7 @@ def import_files(request):
          "Part Combinations": '(none selected)',
          "Repeat Identical": False}
         for ind_pc in indexed_pcs
-    ]
+    ], 200
 
 
 class MainView(generic.TemplateView):

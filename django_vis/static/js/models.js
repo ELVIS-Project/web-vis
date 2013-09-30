@@ -14,34 +14,23 @@ SelectableArray.prototype.removeSelected = function () {
     this.selectedItems.valueHasMutated();
     this.items.valueHasMutated();
 };
+
 function ListOfFiles () {
     SelectableArray.call(this);
     this.items = ko.observableArray([
         {"Filename": "bwv77.mxl"},
-        {"Filename": "Jos2308.krn"},
-        {"Filename": "Kyrie.krn"},
-        {"Filename": "madrigal51.mxl"},
-        {"Filename": "prolationum-sanctus.midi"},
-        {"Filename": "Sanctus.krn"}
     ]);
 }
 ListOfFiles.prototype = Object.create(SelectableArray.prototype);
 ListOfFiles.prototype.constructor = ListOfFiles;
+
 function ListOfPieces () {
     SelectableArray.call(this);
-    this.items = ko.observableArray([
-        {
-            "Path": "/vagrant/vis/test_corpus/bwv77.mxl",
-            "Title": "Das Aug allein das Wasser sieht",
-            "Part Names": "Soprano, Alto, Tenor, Bass",
-            "Offset": [1.0],
-            "Part Combinations": "[[0, 2]]",
-            "Repeat Identical": true
-        }
-    ]);
+    this.items = ko.observableArray();
 }
 ListOfPieces.prototype = Object.create(SelectableArray.prototype);
 ListOfPieces.prototype.constructor = ListOfPieces;
+
 function Wizard() {
     var self = this;
     self.state = ko.observable();
