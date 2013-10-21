@@ -76,7 +76,6 @@
                                         function (element) { return element.Filename; })
                             },
                             dataType: "json",
-                            success: console.log("yay")
                         });
                         break;
                 }
@@ -181,6 +180,61 @@
                     </div>
                     <div class="step-pane" id="analyze">
                         <div class="well">
+                             <div class="navbar">
+                                <div class="navbar-inner">
+                                    <a class="brand">
+                                        Select pieces and choose options for analysis.
+                                    </a>
+                                    <ul class="nav pull-right">
+                                        <li>
+                                            <a data-toggle="modal"
+                                               href="#options">
+                                                <i class="icon-file"></i>
+                                                Options for selected
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a id="remove-selected"
+                                               href="javascript:void(0);">
+                                                <i class="icon-remove"></i>
+                                                Clear all options
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="modal fade" 
+                                 id="options"
+                                 tabindex="-1"
+                                 role="dialog"
+                                 aria-labelledby="label"
+                                 aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content"> 
+                                        <div class="modal-header">
+                                            <button type="button"
+                                                    class="close"
+                                                    data-dismiss="modal"
+                                                    aria-hidden="true">
+                                                &times;
+                                            </button>
+                                            <h4 class="modal-title">
+                                                Options for selected pieces
+                                            </h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>So many options lol</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button"
+                                                    class="btn bn-default"
+                                                    data-dismiss="modal">
+                                                Close
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <table data-bind="tableData: items"
                                    class="table display datatable"
                                    id="pieces-list"></table>
