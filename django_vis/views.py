@@ -27,29 +27,28 @@ import os
 from django.views import generic
 from jsonview import decorators
 import settings
-from vis.models import indexed_piece
-from vis.analyzers import indexers
-
+from vis.workflow import WorkflowManager
 
 @decorators.json_view
 def import_files(request):
     filepaths = [os.path.join(settings.TEST_CORPUS_PATH, fname)
                  for fname in request.GET.getlist('filenames[]')]
-    indexed_pcs = [indexed_piece.IndexedPiece(fpath) for fpath in filepaths]
-    for piece in indexed_pcs:
-        piece.get_data([indexers.noterest.NoteRestIndexer])
+    wf = WorkflowManager(filepaths)
+    wf.load('pieces')
+    request.session['wf'] = wf
     return [
-        {"Path": ind_pc.metadata('pathname'),
-         "Title": ind_pc.metadata('title'),
-         "Part Names": ind_pc.metadata('parts'),
+        {"Path": wf.metadata(i, 'pathname'),
+         "Title": wf.metadata(i, 'title'),
+         "Part Names": wf.metadata(i, 'parts'),
          "Offset": [0.5],
          "Part Combinations": '(none selected)',
          "Repeat Identical": False}
-        for ind_pc in indexed_pcs
+        for i in xrange(len(filepaths))
     ], 200
     
 @decorators.json_view
 def analyze(request):
+    print 'this is a test %s' % indexed_pcs[0].metadata('parts')
     return 200
 
 
