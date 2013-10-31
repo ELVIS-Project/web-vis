@@ -22,12 +22,12 @@
             });
             $("#pieces-list").dataTable({
                 "aoColumns": [
-                    {"sTitle": "Path", "mData": "Path"},
-                    {"sTitle": "Title", "mData": "Title"},
-                    {"sTitle": "Part Names", "mData": "Part Names"},
-                    {"sTitle": "Offset", "mData": "Offset"},
-                    {"sTitle": "Part Combinations", "mData": "Part Combinations"},
-                    {"sTitle": "Repeat Identical", "mData": "Repeat Identical"}
+                    {"sTitle": "Path", "mData": "path"},
+                    {"sTitle": "Title", "mData": "title"},
+                    {"sTitle": "Part Names", "mData": "partNames"},
+                    {"sTitle": "Offset", "mData": "offset"},
+                    {"sTitle": "Part Combinations", "mData": "partCombinations"},
+                    {"sTitle": "Repeat Identical", "mData": "repeatIdentical"}
                 ],
                 "sDom": "rt<'clear'>T",
                 "oTableTools": {
@@ -63,7 +63,10 @@
                             },
                             dataType: "json",
                             success: function (data, textStatus, jqXHR) {
-                                pieces_list.items(data);
+                                data.forEach(function(item) {
+                                    var piece = new Piece(item['Path'], item['Title'], item['Part Names'], item['Offset'], item['Part Combinations'], item['Repeat Identical']);
+                                    pieces_list.items.push(piece);
+                                });
                             }
                         });
                         break;
