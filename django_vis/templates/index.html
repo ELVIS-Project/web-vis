@@ -47,7 +47,7 @@
             });
             var wizard = new Wizard();
             var files_list = new ListOfFiles();
-            var pieces_list = new ListOfPieces();
+            pieces_list = new ListOfPieces();
             ko.applyBindings(wizard, document.getElementById('wizard'));
             ko.applyBindings(files_list, document.getElementById('import'));
             ko.applyBindings(pieces_list, document.getElementById('analyze'));
@@ -82,6 +82,14 @@
                         });
                         break;
                 }
+            });
+            $("#settings-selected-button").click( function() {
+                if (pieces_list.selectedItems().length == 0) {
+                    $("#settings-selected-body").append("Please select at least one item.");
+                } else {
+                    console.log(pieces_list.selectedItems());
+                }
+                $("#settings-selected").modal("show");
             });
         });
     </script>
@@ -198,7 +206,8 @@
                                         </li>
                                         <li>
                                             <a data-toggle="modal"
-                                               href="#settings-selected">
+                                               href=""
+                                               id="settings-selected-button">
                                                 <i class="icon-ok"></i>
                                                 Settings for selected
                                             </a>
@@ -307,22 +316,8 @@
                                                 Options for selected pieces
                                             </h4>
                                         </div>
-                                        <div class="modal-body">
-                                            <form role="form">
-                                                <div class="form-group">
-                                                    <label for="offsetInterval">Offset interval</label>
-                                                    <input type="text" class="form-control" placeholder="(optional)" />
-                                                </div>
-                                                <div class="form-group">
-                                                    <label>
-                                                        <input type="checkbox"> Repeat consecutive identical events
-                                                    </label>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="pieceTitle">Piece title</label>
-                                                    <input type="text" class="form-control" />
-                                                </div>
-                                            </form>
+                                        <div class="modal-body"
+                                             id="settings-selected-body">
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button"
@@ -340,7 +335,10 @@
                             </div>
                             <table data-bind="tableData: items"
                                    class="table display datatable"
-                                   id="pieces-list"></table>
+                                   id="pieces-list">
+                                <tbody data-bind="selectedRows: selectedItems">
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <div class="step-pane" id="experiment">This is step 3</div>
