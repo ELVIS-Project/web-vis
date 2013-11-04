@@ -83,13 +83,27 @@
                         break;
                 }
             });
-            $("#settings-selected-button").click( function() {
+            
+            Array.prototype.allValuesSame = function() {
+                if (this.length > 1) {
+                    for (var i=0; i<this.length; i++) {
+                        if (this[i] !== this[0]) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+            
+            $("#settings-selected-button").click(function() {
                 var form = $("#settings-selected-form");
                 var message = $("#select-one-message");
                 if (pieces_list.selectedItems().length == 0) {
+                    // no pieces selected; show error message
                     message.show();
                     form.hide();
                 } else if (pieces_list.selectedItems().length == 1) {
+                    // one piece selected; show all settings
                     var piece = pieces_list.selectedItems()[0];
                     message.hide();
                     form.find("#title-div :input").val(piece['title']);
@@ -102,13 +116,70 @@
                     });
                     form.find("#part-comb-div :input").val(piece['partCombinations']);
                     form.find("#repeat-ident-div :checkbox").val(piece['repeatIdentical']);
-                    form.show();
-                    console.log(pieces_list.selectedItems());
-                    // display all items
+                    form.show().children().show();
                 } else {
-                    // display intersections of settings
+                    // multiple pieces selected; show intersection of settings
+                    var pieces = pieces_list.selectedItems();
+                    var allNumbersOfParts = new Array();
+                    var allOffsets = new Array();
+                    var allPartCombinations = new Array();
+                    var allRepeatIdents = new Array();
+                    var hideElements = new Array();
+                    var showElements = new Array();
+                    pieces.forEach(function(piece) {
+                        allNumbersOfParts.push(piece.partNames.length);
+                        allOffsets.push(piece.offset[0]);
+                        allPartCombinations.push(piece.partCombinations);
+                        allRepeatIdents.push(piece.repeatIdentical);
+                    });
+                    
+                    // hide title when multiple pieces
+                    hideElements.push(form.find("#title-div"));
+                    
+                    // if all selected have same number of parts, allow editing
+                    // names of parts collectively
+                    form.find("#part-names-div").children(":input").remove();
+                    if (allNumbersOfParts.allValuesSame()) {
+                        for (var i=0; i<allNumbersOfParts[0]; i++) {
+                            input = $('<input type="text" class="form-control">');
+                            input.val("Part " + i);
+                            form.find("#part-names-div").append(input);
+                        }
+                        showElements.push(form.find("#part-names-div"));
+                    } else {
+                        hideElements.push(form.find("#part-names-div"));
+                    }
+                    
+                    if (allOffsets.allValuesSame()) {
+                        form.find("#offset-div :input").val(allOffsets[0]);
+                        showElements.push(form.find("#offset-div"));
+                    } else {
+                        hideElements.push(form.find("#offset-div"));
+                    }
+                    
+                    if (allPartCombinations.allValuesSame()) {
+                        form.find("#part-comb-div :input").val(allPartCombinations[0]);
+                        showElements.push(form.find("#part-comb-div"));
+                    } else {
+                        hideElements.push(form.find("#part-comb-div"));
+                    }
+                    
+                    if (allRepeatIdents.allValuesSame()) {
+                        form.find("#repeat-ident-div :input").val(allRepeatIdents[0]);
+                        showElements.push(form.find("#repeat-ident-div"));
+                    } else {
+                        hideElements.push(form.find("#repeat-ident-div"));
+                    }
+                    
+                    // hide and show appropriate form elements
+                    showElements.forEach(function(element) {
+                        element.show();
+                    });
+                    hideElements.forEach(function(element) {
+                        element.hide();
+                    });
                     message.hide();
-                    console.log("lol");
+                    form.show();
                 }
                 $("#settings-selected").modal("show");
             });
