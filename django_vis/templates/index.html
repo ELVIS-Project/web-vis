@@ -84,10 +84,31 @@
                 }
             });
             $("#settings-selected-button").click( function() {
+                var form = $("#settings-selected-form");
+                var message = $("#select-one-message");
                 if (pieces_list.selectedItems().length == 0) {
-                    $("#settings-selected-body").append("Please select at least one item.");
-                } else {
+                    message.show();
+                    form.hide();
+                } else if (pieces_list.selectedItems().length == 1) {
+                    var piece = pieces_list.selectedItems()[0];
+                    message.hide();
+                    form.find("#title-div :input").val(piece['title']);
+                    form.find("#offset-div :input").val(piece['offset'][0]);
+                    form.find("#part-names-div").children(":input").remove();
+                    piece.partNames.forEach(function(partName) {
+                        input = $('<input type="text" class="form-control">');
+                        input.val(partName);
+                        form.find("#part-names-div").append(input);
+                    });
+                    form.find("#part-comb-div :input").val(piece['partCombinations']);
+                    form.find("#repeat-ident-div :checkbox").val(piece['repeatIdentical']);
+                    form.show();
                     console.log(pieces_list.selectedItems());
+                    // display all items
+                } else {
+                    // display intersections of settings
+                    message.hide();
+                    console.log("lol");
                 }
                 $("#settings-selected").modal("show");
             });
@@ -206,7 +227,7 @@
                                         </li>
                                         <li>
                                             <a data-toggle="modal"
-                                               href=""
+                                               href="#"
                                                id="settings-selected-button">
                                                 <i class="icon-ok"></i>
                                                 Settings for selected
@@ -313,11 +334,39 @@
                                                 &times;
                                             </button>
                                             <h4 class="modal-title">
-                                                Options for selected pieces
+                                                Settings for selected piece(s)
                                             </h4>
                                         </div>
-                                        <div class="modal-body"
-                                             id="settings-selected-body">
+                                        <div class="modal-body">
+                                            <h5 id="select-one-message">Please select at least one piece</h5>
+                                            <form role="form"
+                                                  id="settings-selected-form">
+                                                <div class="form-group"
+                                                     id="title-div">
+                                                    <label for="pieceTitle">Piece title</label>
+                                                    <input type="text" class="form-control" />
+                                                </div>
+                                                <div class="form-group"
+                                                     id="part-names-div">
+                                                    <label for="partNames">Part Names</label>
+                                                </div>
+                                                <div class="form-group"
+                                                     id="offset-div">
+                                                    <label for="offsetInterval">Offset interval</label>
+                                                    <input type="text" class="form-control" placeholder="(optional)" />
+                                                </div>
+                                                <div class="form-group"
+                                                     id="part-comb-div">
+                                                    <label for="partCombinations">Part Combinations</label>
+                                                    <input type="text" class="form-control" placeholder="(none selected)" />
+                                                </div>
+                                                <div class="form-group"
+                                                     id="repeat-ident-div">
+                                                    <label>
+                                                        <input type="checkbox"> Repeat consecutive identical events
+                                                    </label>
+                                                </div>
+                                            </form>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button"
