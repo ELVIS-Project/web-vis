@@ -40,7 +40,7 @@ function Wizard() {
 var Piece = function(path, title, partNames, offset, partCombinations, repeatIdentical) {
     this.path = ko.observable(path);
     this.title = ko.observable(title);
-    this.partNames = ko.observable(partNames);
+    this.partNames = ko.observableArray(partNames);
     this.offset = ko.observable(offset);
     this.partCombinations = ko.observable(partCombinations);
     this.repeatIdentical = ko.observable(repeatIdentical);
