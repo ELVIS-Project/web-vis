@@ -1,12 +1,19 @@
 ko.bindingHandlers.selectedRows = {
-    init: function (element, valueAccessor) {
+    init: function (element, valueAccessor, allBindings, viewModel) {
         // maybe should throw an error if the element is not a datatable
         $(element).parent().on("selectionChanged", function () {
             var value, selectedData, tools;
             tools = TableTools.fnGetInstance($(element).parent().attr('id'));
             selectedData = tools.fnGetSelectedData();
+            models = viewModel.items();
             value = valueAccessor();
-            value(selectedData);
+            selectedModels = new Array();
+            for (var i = 0; i < selectedData.length; ++i) {
+                for (var j = 0; j < models.length; ++j) {
+                    if (_.isEqual(selectedData[j], ko.toJS(models[i]))) selectedModels.push(models[i]);
+                }
+            }
+            value(selectedModels);
         });
     },
     update: function (element, valueAccessor, allBindingsAccessor, viewModel) {
@@ -18,7 +25,7 @@ ko.bindingHandlers.selectedRows = {
         dt = parent.dataTable();
         for (var i = 0; i < val.length; ++i) {
             for (var j = 0; j < data.length; ++j) {
-                if (_.isEqual(data[j], val[i])) tools.fnSelect(dt.fnGetNodes(j));
+                if (_.isEqual(ko.toJS(data[j]), val[i])) tools.fnSelect(dt.fnGetNodes(j));
             }
         }
     }
