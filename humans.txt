@@ -1,0 +1,17 @@
+# humanstxt.org/
+# The humans responsible & technology colophon
+
+# TEAM
+
+    Saining Li -- Programmer
+    Jamie Klassen -- Programmer
+    Christopher Antila -- Programmer
+
+# THANKS
+
+    Everybody!
+
+# TECHNOLOGY COLOPHON
+
+    django
+    etc.
