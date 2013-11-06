@@ -75,10 +75,14 @@
                             method: 'get',
                             url: '/api/analyze',
                             data: {
-                                'filenames': _.map(files_list.items(),
-                                        function (element) { return element.Filename; })
+                                'quality': $("input[name=qualityRadio]:checked").val(), 
+                                'octaves': $("input[name=octaveRadio]:checked").val(),
+                                'updated_pieces': ko.toJSON(pieces_list.items())
                             },
                             dataType: "json",
+                            success: function(stuff) {
+                                console.log(stuff);
+                            }
                         });
                         break;
                 }
@@ -197,7 +201,6 @@
                         item.partCombinations($("#part-comb-div :input").val());
                     }
                     if ($("#repeat-ident-div").is(":visible")) {
-                        console.log($("#repeat-ident-div :checkbox").val());
                         item.repeatIdentical($("#repeat-ident-div :checkbox").prop("checked"));
                     }
                 });
@@ -360,7 +363,6 @@
                                                 <label>
                                                     <input type="radio"
                                                            name="qualityRadio"
-                                                           id="qualityDisplay"
                                                            value="display"
                                                            checked />
                                                     Display
@@ -370,7 +372,6 @@
                                                 <label>
                                                     <input type="radio"
                                                            name="qualityRadio"
-                                                           id="qualityIgnore"
                                                            value="ignore" />
                                                     Ignore
                                                 </label>
@@ -380,7 +381,6 @@
                                                 <label>
                                                     <input type="radio"
                                                            name="octaveRadio"
-                                                           id="octaveCompound"
                                                            value="compound"
                                                            checked />
                                                     Compound
@@ -390,7 +390,6 @@
                                                 <label>
                                                     <input type="radio"
                                                            name="octaveRadio"
-                                                           id="octaveSimple"
                                                            value="simple" />
                                                     Simple
                                                 </label>
