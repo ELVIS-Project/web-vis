@@ -10,7 +10,9 @@ ko.bindingHandlers.selectedRows = {
             selectedModels = new Array();
             for (var i = 0; i < selectedData.length; ++i) {
                 for (var j = 0; j < models.length; ++j) {
-                    if (_.isEqual(selectedData[j], ko.toJS(models[i]))) selectedModels.push(models[i]);
+                    if (_.isEqual(selectedData[i], ko.toJS(models[j]))) {
+                        selectedModels.push(models[j]);
+                    }
                 }
             }
             value(selectedModels);
