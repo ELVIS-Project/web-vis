@@ -19,6 +19,7 @@ function ListOfFiles () {
     SelectableArray.call(this);
     this.items = ko.observableArray([
         {"Filename": "bwv77.mxl"},
+        {"Filename": "madrigal51.mxl"},
         {"Filename": "madrigal51.mxl"}
     ]);
 }
@@ -37,8 +38,8 @@ function Wizard() {
     self.state = ko.observable();
 }
 
-var Piece = function(path, title, partNames, offset, partCombinations, repeatIdentical) {
-    this.path = ko.observable(path);
+var Piece = function(filename, title, partNames, offset, partCombinations, repeatIdentical) {
+    this.filename = ko.observable(filename);
     this.title = ko.observable(title);
     this.partNames = ko.observableArray(partNames);
     this.offset = ko.observable(offset);

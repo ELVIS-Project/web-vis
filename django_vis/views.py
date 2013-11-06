@@ -37,7 +37,7 @@ def import_files(request):
     wf.load('pieces')
     request.session['wf'] = wf
     return [
-        {"Path": wf.metadata(i, 'pathname'),
+        {"Filename": os.path.basename(wf.metadata(i, 'pathname')),
          "Title": wf.metadata(i, 'title'),
          "Part Names": wf.metadata(i, 'parts'),
          "Offset": [0.5],

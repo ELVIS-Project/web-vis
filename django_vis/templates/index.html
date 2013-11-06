@@ -22,7 +22,7 @@
             });
             $("#pieces-list").dataTable({
                 "aoColumns": [
-                    {"sTitle": "Path", "mData": "path"},
+                    {"sTitle": "Filename", "mData": "filename"},
                     {"sTitle": "Title", "mData": "title"},
                     {"sTitle": "Part Names", "mData": "partNames"},
                     {"sTitle": "Offset", "mData": "offset"},
@@ -64,7 +64,7 @@
                             dataType: "json",
                             success: function (data, textStatus, jqXHR) {
                                 data.forEach(function(item) {
-                                    var piece = new Piece(item['Path'], item['Title'], item['Part Names'], item['Offset'], item['Part Combinations'], item['Repeat Identical']);
+                                    var piece = new Piece(item['Filename'], item['Title'], item['Part Names'], item['Offset'], item['Part Combinations'], item['Repeat Identical']);
                                     pieces_list.items.push(piece);
                                 });
                             }
