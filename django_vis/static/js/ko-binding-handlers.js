@@ -2,7 +2,7 @@ ko.bindingHandlers.selectedRows = {
     init: function (element, valueAccessor, allBindings, viewModel) {
         // maybe should throw an error if the element is not a datatable
         $(element).parent().on("selectionChanged", function () {
-            var value, selectedData, tools;
+            var value, selectedData, tools, models, selectedModels;
             tools = TableTools.fnGetInstance($(element).parent().attr('id'));
             selectedData = tools.fnGetSelectedData();
             models = viewModel.items();
