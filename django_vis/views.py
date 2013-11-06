@@ -24,6 +24,7 @@
 #--------------------------------------------------------------------------------------------------
 
 import os
+import simplejson as json
 from django.views import generic
 from jsonview import decorators
 import settings
@@ -43,13 +44,26 @@ def import_files(request):
          "Offset": [0.5],
          "Part Combinations": '(none selected)',
          "Repeat Identical": False}
-        for i in xrange(len(filepaths))
+        for i in xrange(len(wf))
     ], 200
     
 @decorators.json_view
 def analyze(request):
-    print 'this is a test %s' % indexed_pcs[0].metadata('parts')
-    return 200
+    wf = request.session['wf']
+    updated_pieces = json.loads(request.GET['updated_pieces'])
+    interval_quality = True if request.GET['quality'] == 'display' else False
+    simple_intervals = True if request.GET['octaves'] == 'simple' else False
+    for (i, piece) in enumerate(updated_pieces):
+        wf.metadata(i, 'title', piece['title'])
+        wf.metadata(i, 'parts', piece['partNames'])
+        wf.settings(i, 'offset interval', piece['offset'])
+        wf.settings(i, 'voice combinations', piece['partCombinations'])
+        wf.settings(i, 'filter repeats', piece['repeatIdentical'])
+    wf.settings(None, 'interval quality', interval_quality)
+    wf.settings(None, 'simple intervals', simple_intervals)
+    return [
+        request.GET.dict()
+    ], 200
 
 
 class MainView(generic.TemplateView):
