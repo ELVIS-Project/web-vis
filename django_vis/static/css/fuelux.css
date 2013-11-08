@@ -6787,7 +6787,7 @@ textarea.span1,
 }
 
 .fuelux .wizard ul li.complete {
-  color: #468847;
+  color: #7398AA;
   background: #f3f4f5;
 }
 
@@ -6806,11 +6806,11 @@ textarea.span1,
 
 .fuelux .wizard ul li.active {
   color: #3a87ad;
-  background: #f1f6fc;
+  background: #C1D7F0;
 }
 
 .fuelux .wizard ul li.active .chevron:before {
-  border-left: 14px solid #f1f6fc;
+  border-left: 14px solid #C1D7F0;
 }
 
 .fuelux .wizard ul li .badge {
