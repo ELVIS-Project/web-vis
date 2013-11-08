@@ -41,7 +41,7 @@ def import_files(request):
         {"Filename": os.path.basename(wf.metadata(i, 'pathname')),
          "Title": wf.metadata(i, 'title'),
          "Part Names": wf.metadata(i, 'parts'),
-         "Offset": [0.5],
+         "Offset": None,
          "Part Combinations": '(none selected)',
          "Repeat Identical": False}
         for i in xrange(len(wf))
@@ -64,6 +64,10 @@ def analyze(request):
     return [
         request.GET.dict()
     ], 200
+    
+@decorators.json_view
+def experiment(request):
+    return 200
 
 
 class MainView(generic.TemplateView):
