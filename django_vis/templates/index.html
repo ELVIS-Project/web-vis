@@ -50,7 +50,7 @@
             pieces_list = new ListOfPieces();
             ko.applyBindings(wizard, document.getElementById('wizard'));
             ko.applyBindings(files_list, document.getElementById('import'));
-            ko.applyBindings(pieces_list, document.getElementById('analyze'));
+            ko.applyBindings(pieces_list, document.getElementById('analysis-settings'));
             $("#wizard").on('change', function () {
                 switch (selectedItem(this)) {
                     case 1:
@@ -241,20 +241,20 @@
                             Import
                             <span class="chevron"></span>
                         </li>
-                        <li data-target="#analyze">
+                        <li data-target="#analysis-settings">
                             <span>
                                 <img class="step-img"
                                      src="{{ STATIC_URL }}img/analyze.png">
                             </span>
-                            Analyze
+                            Analysis Settings
                             <span class="chevron"></span>
                         </li>
-                        <li data-target="#experiment">
+                        <li data-target="#experiment-settings">
                             <span>
                                 <img class="step-img"
                                      src="{{ STATIC_URL }}img/show_results.png">
                             </span>
-                            Experiment
+                            Experiment Settings
                             <span class="chevron"></span></li>
                     </ul>
                     <div class="actions">
@@ -305,7 +305,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="step-pane" id="analyze">
+                    <div class="step-pane" id="analysis-settings">
                         <div class="well">
                              <div class="navbar">
                                 <div class="navbar-inner">
@@ -478,7 +478,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="step-pane" id="experiment">This is step 3</div>
+                    <div class="step-pane" id="experiment-settings">This is step 3</div>
                 </div>
             </div>
             <div class='span2'></div>
