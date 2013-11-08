@@ -1,3 +1,7 @@
+/*
+ * Downloaded from http://datatables.net/media/blog/bootstrap_2/DT_bootstrap.js
+ */
+
 /* Set the defaults for DataTables initialisation */
 $.extend( true, $.fn.dataTable.defaults, {
         "sDom": "rt<'clear'>T",
