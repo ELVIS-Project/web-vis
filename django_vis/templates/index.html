@@ -494,7 +494,7 @@
                                 </div>
                             </div>
                             <form role="form">
-                                <h4>Objects to consider</h4>
+                                <h4>Experiment to run</h4>
                                 <div class="radio">
                                     <label>
                                         <input type="radio" name="objectsRadio" value="intervals" checked>
@@ -509,20 +509,6 @@
                                     <input type="text" id="value-n" class="form-control" disabled placeholder="value of n">
                                     <span class="help-inline">
                                         The length of the n-gram you wish to produce.
-                                    </span>
-                                </div>
-                                <div class="form-group">
-                                    <label for="topx">"Top x" filter</label>
-                                    <input type="text" id="topx" class="form-control" placeholder="optional">
-                                    <span class="help-inline">
-                                        Show only the x highest results.
-                                    </span>
-                                </div>
-                                <div class="form-group">
-                                    <label for="threshold">Threshold filter</label>
-                                    <input type="text" id="threshold" class="form-control" placeholder="optional">
-                                    <span class="help-inline">
-                                        Do not show results with fewer than this many occurences.
                                     </span>
                                 </div>
                                 <h4>How to show results</h4>
@@ -543,6 +529,20 @@
                                         <input type="radio" name="outputRadio" value="chart">
                                         Chart/Graph
                                     </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="topx">"Top x" filter</label>
+                                    <input type="text" id="topx" class="form-control" placeholder="optional">
+                                    <span class="help-inline">
+                                        Show only the x highest results.
+                                    </span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="threshold">Threshold filter</label>
+                                    <input type="text" id="threshold" class="form-control" placeholder="optional">
+                                    <span class="help-inline">
+                                        Do not show results with fewer than this many occurences.
+                                    </span>
                                 </div>
                             </form>
                         </div>
