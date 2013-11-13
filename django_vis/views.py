@@ -57,17 +57,33 @@ def analyze(request):
         wf.metadata(i, 'title', piece['title'])
         wf.metadata(i, 'parts', piece['partNames'])
         wf.settings(i, 'offset interval', piece['offset'])
-        wf.settings(i, 'voice combinations', piece['partCombinations'])
+        wf.settings(i, 'voice combinations', '[all]')
         wf.settings(i, 'filter repeats', piece['repeatIdentical'])
     wf.settings(None, 'interval quality', interval_quality)
     wf.settings(None, 'simple intervals', simple_intervals)
-    return [
-        request.GET.dict()
-    ], 200
+    return 200
     
 @decorators.json_view
 def experiment(request):
-    return 200
+    wf = request.session['wf']
+    experiment = 'intervals' if request.GET['experiment'] == 'intervals' else 'interval n-grams'
+    n = None if request.GET['n'] == '' else int(request.GET['n'])
+    topx = None if request.GET['topx'] == '' else int(request.GET['topx'])
+    threshold = None if request.GET['threshold'] == '' else int(request.GET['threshold'])
+    output = request.GET['output']
+    if request.GET['experiment'] == 'intervals':
+        test = wf.run('intervals')
+    else:
+        test = wf.run('interval n-grams', n)
+    if output == 'spreadsheet':
+        pass
+    elif output == 'list':
+        pass
+    elif output == 'chart':
+        pass
+    else:
+        pass
+    return {'test': str(test)}, 200
 
 
 class MainView(generic.TemplateView):
