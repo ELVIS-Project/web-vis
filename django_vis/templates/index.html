@@ -79,13 +79,26 @@
                                 'octaves': $("input[name=octaveRadio]:checked").val(),
                                 'updated_pieces': ko.toJSON(pieces_list.items())
                             },
-                            dataType: "json",
-                            success: function(stuff) {
-                                console.log(stuff);
-                            }
+                            dataType: "json"
                         });
                         break;
                 }
+            });
+            
+            $("#wizard").on('finished', function() {
+                $.ajax({
+                    method: 'get',
+                    url: '/api/experiment',
+                    data: {
+                        'experiment': $("input[name=objectsRadio]:checked").val(),
+                        'n': $("#value-n").val(),
+                        'topx': $("#topx").val(),
+                        'threshold': $("#threshold").val(),
+                        'output': $("input[name=outputRadio]:checked").val()
+                    },
+                    dataType: "json",
+                    success: function(data){console.log(data)},
+                });
             });
             
             Array.prototype.allValuesSame = function() {
@@ -98,6 +111,15 @@
                 }
                 return true;
             }
+            
+            $("input[name=objectsRadio]:radio").change(function(radio) {
+                if($("#value-n").prop("disabled")==true) {
+                    $("#value-n").prop("disabled", false);
+                } else {
+                    $("#value-n").prop("disabled", true);
+                    $("#value-n").val("");
+                }
+            });
             
             $("#settings-selected-button").click(function() {
                 var form = $("#settings-selected-form");
@@ -462,7 +484,69 @@
                             </table>
                         </div>
                     </div>
-                    <div class="step-pane" id="experiment-settings">This is step 3</div>
+                    <div class="step-pane" id="experiment-settings">
+                        <div class="well">
+                             <div class="navbar">
+                                <div class="navbar-inner">
+                                    <a class="brand">
+                                        Choose settings for experiment
+                                    </a>
+                                </div>
+                            </div>
+                            <form role="form">
+                                <h4>Objects to consider</h4>
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="objectsRadio" value="intervals" checked>
+                                        Intervals
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="objectsRadio" value="interval-n-grams">
+                                        Interval n-grams
+                                    </label>
+                                    <input type="text" id="value-n" class="form-control" disabled placeholder="value of n">
+                                    <span class="help-inline">
+                                        The length of the n-gram you wish to produce.
+                                    </span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="topx">"Top x" filter</label>
+                                    <input type="text" id="topx" class="form-control" placeholder="optional">
+                                    <span class="help-inline">
+                                        Show only the x highest results.
+                                    </span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="threshold">Threshold filter</label>
+                                    <input type="text" id="threshold" class="form-control" placeholder="optional">
+                                    <span class="help-inline">
+                                        Do not show results with fewer than this many occurences.
+                                    </span>
+                                </div>
+                                <h4>How to show results</h4>
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="outputRadio" value="spreadsheet" checked>
+                                        Spreadsheet
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="outputRadio" value="list">
+                                        List
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="outputRadio" value="chart">
+                                        Chart/Graph
+                                    </label>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class='span2'></div>
