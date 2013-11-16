@@ -23,9 +23,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #--------------------------------------------------------------------------------------------------
 
+import traceback
 import os
 import simplejson as json
 from django.views import generic
+from django.conf import settings
+from django.template import Template, Context, loader
+from django.http import HttpResponse
 from jsonview import decorators
 import settings
 from vis.workflow import WorkflowManager
@@ -48,42 +52,44 @@ def import_files(request):
     ], 200
     
 @decorators.json_view
-def analyze(request):
+def run_experiment(request):
     wf = request.session['wf']
+    # Set metadata and settings
     updated_pieces = json.loads(request.GET['updated_pieces'])
     interval_quality = True if request.GET['quality'] == 'display' else False
     simple_intervals = True if request.GET['octaves'] == 'simple' else False
     for (i, piece) in enumerate(updated_pieces):
-        wf.metadata(i, 'title', piece['title'])
-        wf.metadata(i, 'parts', piece['partNames'])
-        wf.settings(i, 'offset interval', piece['offset'])
+        #wf.metadata(i, 'title', piece['title'])
+        #wf.metadata(i, 'parts', piece['partNames'])
+        # wf.settings(i, 'offset interval', piece['offset'])
         wf.settings(i, 'voice combinations', '[all]')
-        wf.settings(i, 'filter repeats', piece['repeatIdentical'])
-    wf.settings(None, 'interval quality', interval_quality)
-    wf.settings(None, 'simple intervals', simple_intervals)
-    return 200
-    
-@decorators.json_view
-def experiment(request):
-    wf = request.session['wf']
+        #wf.settings(i, 'filter repeats', piece['repeatIdentical'])
+    #wf.settings(None, 'interval quality', interval_quality)
+    #wf.settings(None, 'simple intervals', simple_intervals)
+    # run experiment
     experiment = 'intervals' if request.GET['experiment'] == 'intervals' else 'interval n-grams'
     n = None if request.GET['n'] == '' else int(request.GET['n'])
     topx = None if request.GET['topx'] == '' else int(request.GET['topx'])
     threshold = None if request.GET['threshold'] == '' else int(request.GET['threshold'])
     output = request.GET['output']
     if request.GET['experiment'] == 'intervals':
-        test = wf.run('intervals')
+        wf.run('intervals')
     else:
-        test = wf.run('interval n-grams', n)
-    if output == 'spreadsheet':
         pass
-    elif output == 'list':
-        pass
+    if output == 'table':
+        filename = 'output.html'
+        wf.export('HTML', "%s%s" % (settings.MEDIA_ROOT, filename), top_x=topx, threshold=threshold)
     elif output == 'chart':
         pass
     else:
         pass
-    return {'test': str(test)}, 200
+    return {'type': output,
+            'filename': filename}, 200
+            
+def output_table(request, filename=None):
+    template = loader.get_template('table.html')
+    table = open("%s%s" % (settings.MEDIA_ROOT, filename)).read()
+    return HttpResponse(template.render(Context({'table': table})))
 
 
 class MainView(generic.TemplateView):

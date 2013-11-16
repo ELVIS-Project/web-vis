@@ -70,18 +70,6 @@
                             }
                         });
                         break;
-                    case 2:
-                        $.ajax({
-                            method: 'get',
-                            url: '/api/analyze',
-                            data: {
-                                'quality': $("input[name=qualityRadio]:checked").val(), 
-                                'octaves': $("input[name=octaveRadio]:checked").val(),
-                                'updated_pieces': ko.toJSON(pieces_list.items())
-                            },
-                            dataType: "json"
-                        });
-                        break;
                 }
             });
             
@@ -90,6 +78,9 @@
                     method: 'get',
                     url: '/api/experiment',
                     data: {
+                        'quality': $("input[name=qualityRadio]:checked").val(), 
+                        'octaves': $("input[name=octaveRadio]:checked").val(),
+                        'updated_pieces': ko.toJSON(pieces_list.items()),
                         'experiment': $("input[name=objectsRadio]:checked").val(),
                         'n': $("#value-n").val(),
                         'topx': $("#topx").val(),
@@ -97,7 +88,11 @@
                         'output': $("input[name=outputRadio]:checked").val()
                     },
                     dataType: "json",
-                    success: function(data){console.log(data)},
+                    success: function(data) {
+                        if (data['type']=='table') {
+                            window.open('/output/table/' + data['filename']).focus();
+                        }
+                    },
                 });
             });
             
@@ -514,20 +509,14 @@
                                 <h4>How to show results</h4>
                                 <div class="radio">
                                     <label>
-                                        <input type="radio" name="outputRadio" value="spreadsheet" checked>
-                                        Spreadsheet
-                                    </label>
-                                </div>
-                                <div class="radio">
-                                    <label>
-                                        <input type="radio" name="outputRadio" value="list">
-                                        List
+                                        <input type="radio" name="outputRadio" value="table" checked>
+                                        Table
                                     </label>
                                 </div>
                                 <div class="radio">
                                     <label>
                                         <input type="radio" name="outputRadio" value="chart">
-                                        Chart/Graph
+                                        Chart
                                     </label>
                                 </div>
                                 <div class="form-group">
