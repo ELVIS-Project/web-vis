@@ -59,13 +59,13 @@ def run_experiment(request):
     interval_quality = True if request.GET['quality'] == 'display' else False
     simple_intervals = True if request.GET['octaves'] == 'simple' else False
     for (i, piece) in enumerate(updated_pieces):
-        #wf.metadata(i, 'title', piece['title'])
-        #wf.metadata(i, 'parts', piece['partNames'])
-        # wf.settings(i, 'offset interval', piece['offset'])
+        wf.metadata(i, 'title', piece['title'])
+        wf.metadata(i, 'parts', piece['partNames'])
+        wf.settings(i, 'offset interval', piece['offset'])
         wf.settings(i, 'voice combinations', '[all]')
-        #wf.settings(i, 'filter repeats', piece['repeatIdentical'])
-    #wf.settings(None, 'interval quality', interval_quality)
-    #wf.settings(None, 'simple intervals', simple_intervals)
+        wf.settings(i, 'filter repeats', piece['repeatIdentical'])
+    wf.settings(None, 'interval quality', interval_quality)
+    wf.settings(None, 'simple intervals', simple_intervals)
     # run experiment
     experiment = 'intervals' if request.GET['experiment'] == 'intervals' else 'interval n-grams'
     n = None if request.GET['n'] == '' else int(request.GET['n'])
@@ -75,7 +75,8 @@ def run_experiment(request):
     if request.GET['experiment'] == 'intervals':
         wf.run('intervals')
     else:
-        pass
+        wf.run('interval n-grams')
+    # produce output
     if output == 'table':
         filename = 'output.html'
         wf.export('HTML', "%s%s" % (settings.MEDIA_ROOT, filename), top_x=topx, threshold=threshold)
@@ -90,6 +91,9 @@ def output_table(request, filename=None):
     template = loader.get_template('table.html')
     table = open("%s%s" % (settings.MEDIA_ROOT, filename)).read()
     return HttpResponse(template.render(Context({'table': table})))
+    
+def output_chart(request, filename=None):
+    pass
 
 
 class MainView(generic.TemplateView):
