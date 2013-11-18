@@ -91,16 +91,34 @@
                     success: function(data) {
                         if (data['type']=='table') {
                             window.open('/output/table/' + data['filename']).focus();
+                        } else if (data['type']=='chart') {
+                            window.open('/output/chart/' + data['filename']).focus();
                         }
                     },
                 });
             });
             
+            Array.prototype.sameAs = function(array) {
+                if (this.length != array.length) return false;
+                for (var i=0; i<this.length; i++) {
+                    if (this[i] != array[i]) return false;
+                }
+                return true;
+            }
+            
             Array.prototype.allValuesSame = function() {
                 if (this.length > 1) {
-                    for (var i=0; i<this.length; i++) {
-                        if (this[i] !== this[0]) {
-                            return false;
+                    if (this[0] instanceof Array) {
+                        for (var i=0; i<this.length; i++) {
+                            if (!this[i].sameAs(this[0])) {
+                                return false;
+                            }
+                        }
+                    } else {
+                        for (var i=0; i<this.length; i++) {
+                            if (this[i] !== this[0]) {
+                                return false;
+                            }
                         }
                     }
                 }
@@ -142,6 +160,7 @@
                     // multiple pieces selected; show intersection of settings
                     var pieces = pieces_list.selectedItems();
                     var allNumbersOfParts = new Array();
+                    var allPartNames = new Array();
                     var allOffsets = new Array();
                     var allPartCombinations = new Array();
                     var allRepeatIdents = new Array();
@@ -149,7 +168,8 @@
                     var showElements = new Array();
                     pieces.forEach(function(piece) {
                         allNumbersOfParts.push(piece.partNames().length);
-                        allOffsets.push(piece.offset()[0]);
+                        allPartNames.push(piece.partNames());
+                        allOffsets.push(piece.offset());
                         allPartCombinations.push(piece.partCombinations());
                         allRepeatIdents.push(piece.repeatIdentical());
                     });
@@ -161,10 +181,21 @@
                     // names of parts collectively
                     form.find("#part-names-div").children(":input").remove();
                     if (allNumbersOfParts.allValuesSame()) {
-                        for (var i=0; i<allNumbersOfParts[0]; i++) {
-                            input = $('<input type="text" class="form-control">');
-                            input.val("Part " + i);
-                            form.find("#part-names-div").append(input);
+                        // if the part names are the same for all pieces, show those names
+                        
+                        if (allPartNames.allValuesSame()) {
+                            for (var i=0; i<allNumbersOfParts[0]; i++) {
+                                input = $('<input type="text" class="form-control"><br>');
+                                input.val(allPartNames[0][i]);
+                                form.find("#part-names-div").append(input);
+                            }
+                        // if the part names aren't the same, call them "part i"
+                        } else {
+                            for (var i=0; i<allNumbersOfParts[0]; i++) {
+                                input = $('<input type="text" class="form-control"><br>');
+                                input.val("Part " + i);
+                                form.find("#part-names-div").append(input);
+                            }
                         }
                         showElements.push(form.find("#part-names-div"));
                     } else {
