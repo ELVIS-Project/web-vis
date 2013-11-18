@@ -238,21 +238,28 @@
             
             $("#settings-selected-save-button").click(function() {
                 var form = $("#settings-selected-form");
-                pieces_list.selectedItems().forEach(function(item) {
+                pieces_list.selectedItems().forEach(function(piece) {
                     if ($("#title-div").is(":visible")) {
-                        item.title($("#title-div :input").val());
+                        piece.title($("#title-div :input").val());
                     }
                     if ($("#offset-div").is(":visible")) {
-                        item.offset($("#offset-div :input").val());
+                        piece.offset($("#offset-div :input").val());
                     }
                     if ($("#part-comb-div").is(":visible")) {
-                        item.partCombinations($("#part-comb-div :input").val());
+                        piece.partCombinations($("#part-comb-div :input").val());
                     }
                     if ($("#repeat-ident-div").is(":visible")) {
-                        item.repeatIdentical($("#repeat-ident-div :checkbox").prop("checked"));
+                        piece.repeatIdentical($("#repeat-ident-div :checkbox").prop("checked"));
+                    }
+                    var partNameInputs = $("#part-names-div :input");
+                    // Update part name only if it's been changed (no longer 'Part i')
+                    for (var i=0; i<partNameInputs.length; i++) {
+                        var partName = $(partNameInputs[i]).val();
+                        if (partName!="Part "+i) {
+                            piece.partNames.splice(i, 1, partName);
+                        }
                     }
                 });
-                // shit how to set part names for multiple if user hasn't changed it fuck fuck fuck
                 $("#settings-selected").modal("hide");
             });
         });
