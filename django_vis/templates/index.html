@@ -148,8 +148,9 @@
                     form.find("#title-div :input").val(piece.title());
                     form.find("#offset-div :input").val(piece.offset());
                     form.find("#part-names-div").children(":input").remove();
+                    form.find("#part-names-div").children("br").remove();
                     piece.partNames().forEach(function(partName) {
-                        input = $('<input type="text" class="form-control">');
+                        input = $('<input type="text" class="form-control"><br>');
                         input.val(partName);
                         form.find("#part-names-div").append(input);
                     });
@@ -180,6 +181,7 @@
                     // if all selected have same number of parts, allow editing
                     // names of parts collectively
                     form.find("#part-names-div").children(":input").remove();
+                    form.find("#part-names-div").children("br").remove()
                     if (allNumbersOfParts.allValuesSame()) {
                         // if the part names are the same for all pieces, show those names
                         
