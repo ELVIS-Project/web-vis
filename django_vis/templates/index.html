@@ -63,6 +63,7 @@
                             },
                             dataType: "json",
                             success: function (data, textStatus, jqXHR) {
+                                pieces_list.items.removeAll();
                                 data.forEach(function(item) {
                                     var piece = new Piece(item['Filename'], item['Title'], item['Part Names'], item['Offset'], item['Part Combinations'], item['Repeat Identical']);
                                     pieces_list.items.push(piece);
