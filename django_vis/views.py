@@ -82,7 +82,7 @@ def run_experiment(request):
         filename = filename + '.html'
         wf.export('HTML', "%s%s" % (settings.MEDIA_ROOT, filename), top_x=topx, threshold=threshold)
     elif output == 'chart':
-        wf.output('R histogram', "%s%s" % (settings.MEDIA_ROOT, filename))
+        wf.output('R histogram', "%s%s" % (settings.MEDIA_ROOT, filename), top_x=topx, threshold=threshold)
         filename = filename + '.png'
     else:
         pass
