@@ -88,11 +88,12 @@
                         'output': $("input[name=outputRadio]:checked").val()
                     },
                     dataType: "json",
+                    async: false, // needed for chrome to open in new tab, for some reason
                     success: function(data) {
                         if (data['type']=='table') {
-                            window.open('/output/table/' + data['filename']).focus();
+                            w=window.open('/output/table/' + data['filename']);
                         } else if (data['type']=='chart') {
-                            window.open('/output/chart/' + data['filename']).focus();
+                            window.open('/output/chart/' + data['filename']);
                         }
                     },
                 });
