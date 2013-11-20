@@ -28,8 +28,8 @@ import os
 import simplejson as json
 from django.views import generic
 from django.conf import settings
-from django.template import Template, Context, loader
-from django.http import HttpResponse
+from django.shortcuts import render_to_response
+from django.template.context import RequestContext
 from jsonview import decorators
 import settings
 from vis.workflow import WorkflowManager
@@ -77,25 +77,27 @@ def run_experiment(request):
     else:
         wf.run('interval n-grams')
     # produce output
+    filename = request.session.session_key
     if output == 'table':
-        filename = 'output.html'
+        filename = filename + '.html'
         wf.export('HTML', "%s%s" % (settings.MEDIA_ROOT, filename), top_x=topx, threshold=threshold)
     elif output == 'chart':
-        pass
+        wf.output('R histogram', "%s%s" % (settings.MEDIA_ROOT, filename))
+        filename = filename + '.png'
     else:
         pass
     return {'type': output,
             'filename': filename}, 200
             
-def output_table(request, filename=None):
-    template = loader.get_template('table.html')
+def output_table(request):
+    filename = request.session.session_key + '.html'
     table = open("%s%s" % (settings.MEDIA_ROOT, filename)).read()
-    return HttpResponse(template.render(Context({'table': table})))
+    return render_to_response('table.html', {'table': table})
     
 def output_chart(request, filename=None):
-    pass
-
-
+    filename = request.session.session_key + '.png'
+    return render_to_response('chart.html', context_instance=RequestContext(request, {'filename': filename}))
+    
 class MainView(generic.TemplateView):
     template_name = 'index.html'
 

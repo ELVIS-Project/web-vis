@@ -24,6 +24,8 @@
 #--------------------------------------------------------------------------------------------------
 
 from django.conf.urls import patterns, url
+from django.conf import settings
+from django.conf.urls.static import static
 import views
 
 # Uncomment the next two lines to enable the admin:
@@ -36,8 +38,8 @@ urlpatterns = patterns(
     url(r'^$', views.MainView.as_view(), name='main'),
     url(r'^api/import/?$', views.import_files, name='import'),
     url(r'^api/experiment/?$', views.run_experiment, name='experiment'),
-    url(r'^output/table/(?P<filename>.*)$', views.output_table, name='output'),
-    url(r'^output/chart/(?P<filename>.*)$', views.output_chart, name='output')
+    url(r'^output/table/?$', views.output_table, name='table'),
+    url(r'^output/chart/?$', views.output_chart, name='chart'),
     # url(r'^django_vis/', include('django_vis.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
@@ -46,3 +48,6 @@ urlpatterns = patterns(
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
 )
+urlpatterns += patterns('',
+        (r'^media/(?P<path>.*)$', 'django.views.static.serve', {
+        'document_root': settings.MEDIA_ROOT}))
