@@ -59,7 +59,6 @@ def run_experiment(request):
     interval_quality = True if request.GET['quality'] == 'display' else False
     simple_intervals = True if request.GET['octaves'] == 'simple' else False
     for (i, piece) in enumerate(updated_pieces):
-        print piece
         wf.metadata(i, 'title', piece['title'])
         wf.metadata(i, 'parts', piece['partNames'])
         wf.settings(i, 'offset interval', None if piece['offset']=='' else piece['offset'])
@@ -67,7 +66,6 @@ def run_experiment(request):
         wf.settings(i, 'filter repeats', piece['repeatIdentical'])
     wf.settings(None, 'interval quality', interval_quality)
     wf.settings(None, 'simple intervals', simple_intervals)
-    print 'one'
     # run experiment
     experiment = 'intervals' if request.GET['experiment'] == 'intervals' else 'interval n-grams'
     n = None if request.GET['n'] == '' else int(request.GET['n'])
