@@ -93,7 +93,7 @@ def output_table(request):
     table = open("%s%s" % (settings.MEDIA_ROOT, filename)).read()
     return render_to_response('table.html', {'table': table})
     
-def output_chart(request, filename=None):
+def output_graph(request, filename=None):
     filename = request.session.session_key + '.png'
     return render_to_response('chart.html', context_instance=RequestContext(request, {'filename': filename}))
     

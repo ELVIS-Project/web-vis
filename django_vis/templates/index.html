@@ -93,8 +93,8 @@
                     success: function(data) {
                         if (data['type']=='table') {
                             w=window.open('/output/table/');
-                        } else if (data['type']=='chart') {
-                            window.open('/output/chart/');
+                        } else if (data['type']=='graph') {
+                            window.open('/output/graph/');
                         }
                     },
                 });
@@ -557,8 +557,8 @@
                                 </div>
                                 <div class="radio">
                                     <label>
-                                        <input type="radio" name="outputRadio" value="chart">
-                                        Chart
+                                        <input type="radio" name="outputRadio" value="graph">
+                                        Bar graph
                                     </label>
                                 </div>
                                 <div class="form-group">
