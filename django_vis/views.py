@@ -75,6 +75,7 @@ def run_experiment(request):
     if request.GET['experiment'] == 'intervals':
         wf.run('intervals')
     else:
+        wf.settings(0, 'n', n)
         wf.run('interval n-grams')
     # produce output
     filename = request.session.session_key
