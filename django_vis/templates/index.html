@@ -126,7 +126,15 @@
                 }
                 return true;
             }
-            
+            $('#loading-div')
+                .hide()
+                .ajaxStart(function() {
+                    $(this).show();
+                })
+                .ajaxStop(function() {
+                    $(this).hide();
+                })
+            ;
             $("input[name=objectsRadio]:radio").change(function(radio) {
                 if($("#value-n").prop("disabled")==true) {
                     $("#value-n").prop("disabled", false);
@@ -283,6 +291,9 @@
     vis X
 {% endblock %}
 {% block content %}
+    <div id="loading-div">
+        <div class="preloader"><i></i><i></i><i></i><i></i></div>
+    </div>
     <div class='container'>
         <div class='row'>
             <div class='span2'></div>
