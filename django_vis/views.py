@@ -46,7 +46,7 @@ def import_files(request):
          "Title": wf.metadata(i, 'title'),
          "Part Names": wf.metadata(i, 'parts'),
          "Offset": None,
-         "Part Combinations": '(none selected)',
+         "Part Combinations": None,
          "Repeat Identical": False}
         for i in xrange(len(wf))
     ], 200
@@ -59,13 +59,15 @@ def run_experiment(request):
     interval_quality = True if request.GET['quality'] == 'display' else False
     simple_intervals = True if request.GET['octaves'] == 'simple' else False
     for (i, piece) in enumerate(updated_pieces):
+        print piece
         wf.metadata(i, 'title', piece['title'])
         wf.metadata(i, 'parts', piece['partNames'])
-        wf.settings(i, 'offset interval', piece['offset'])
-        wf.settings(i, 'voice combinations', '[all]')
+        wf.settings(i, 'offset interval', None if piece['offset']=='' else piece['offset'])
+        wf.settings(i, 'voice combinations', piece['partCombinations'])
         wf.settings(i, 'filter repeats', piece['repeatIdentical'])
     wf.settings(None, 'interval quality', interval_quality)
     wf.settings(None, 'simple intervals', simple_intervals)
+    print 'one'
     # run experiment
     experiment = 'intervals' if request.GET['experiment'] == 'intervals' else 'interval n-grams'
     n = None if request.GET['n'] == '' else int(request.GET['n'])
@@ -86,8 +88,7 @@ def run_experiment(request):
         filename = filename + '.png'
     else:
         pass
-    return {'type': output,
-            'filename': filename}, 200
+    return {'type': output}, 200
             
 def output_table(request):
     filename = request.session.session_key + '.html'
