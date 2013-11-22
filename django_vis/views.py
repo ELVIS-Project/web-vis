@@ -82,7 +82,7 @@ def run_experiment(request):
     if output == 'table':
         filename = filename + '.html'
         wf.export('HTML', "%s%s" % (settings.MEDIA_ROOT, filename), top_x=topx, threshold=threshold)
-    elif output == 'chart':
+    elif output == 'graph':
         wf.output('R histogram', "%s%s" % (settings.MEDIA_ROOT, filename), top_x=topx, threshold=threshold)
         filename = filename + '.png'
     else:
@@ -96,7 +96,7 @@ def output_table(request):
     
 def output_graph(request, filename=None):
     filename = request.session.session_key + '.png'
-    return render_to_response('chart.html', context_instance=RequestContext(request, {'filename': filename}))
+    return render_to_response('graph.html', context_instance=RequestContext(request, {'filename': filename}))
     
 class MainView(generic.TemplateView):
     template_name = 'index.html'
