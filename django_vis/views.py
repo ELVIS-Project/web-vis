@@ -61,7 +61,7 @@ def run_experiment(request):
     for (i, piece) in enumerate(updated_pieces):
         wf.metadata(i, 'title', piece['title'])
         wf.metadata(i, 'parts', piece['partNames'])
-        wf.settings(i, 'offset interval', None if piece['offset']=='' else piece['offset'])
+        wf.settings(i, 'offset interval', None if piece['offset']=='' else float(piece['offset']))
         wf.settings(i, 'voice combinations', piece['partCombinations'])
         wf.settings(i, 'filter repeats', piece['repeatIdentical'])
     wf.settings(None, 'interval quality', interval_quality)
