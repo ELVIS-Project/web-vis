@@ -40,6 +40,7 @@ urlpatterns = patterns(
     url(r'^api/experiment/?$', views.run_experiment, name='experiment'),
     url(r'^output/table/?$', views.output_table, name='table'),
     url(r'^output/graph/?$', views.output_graph, name='graph'),
+    url(r'^upload/$', views.upload),
     # url(r'^django_vis/', include('django_vis.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:

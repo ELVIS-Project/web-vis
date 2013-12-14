@@ -47,7 +47,7 @@
             });
             var wizard = new Wizard();
             var files_list = new ListOfFiles();
-            pieces_list = new ListOfPieces();
+            var pieces_list = new ListOfPieces();
             ko.applyBindings(wizard, document.getElementById('wizard'));
             ko.applyBindings(files_list, document.getElementById('import'));
             ko.applyBindings(pieces_list, document.getElementById('analysis-settings'));
@@ -73,7 +73,13 @@
                         break;
                 }
             });
-            
+            $("#uploadForm").ajaxForm({
+                success: function(filenames) {
+                    filenames.forEach(function(filename){
+                        files_list.items.push({"Filename": filename})
+                    });
+                }
+            });
             $("#wizard").on('finished', function() {
                 $.ajax({
                     method: 'get',
@@ -358,6 +364,11 @@
                                     </ul>
                                 </div>
                             </div>
+                            <form action="upload/" method="post" enctype="multipart/form-data" id="uploadForm">
+                                {% csrf_token %}
+                                <input type="file" multiple="multiple" name="files" />
+                                <input type="submit" value="Upload" />
+                            </form>
                             <table data-bind="tableData: items"
                                    class="table display datatable"
                                    id="files-list">
