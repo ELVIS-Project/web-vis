@@ -102,23 +102,17 @@ def output_graph(request, filename=None):
 @decorators.json_view
 def upload(request):
     # Handle file upload
+    if request.session.session_key == None:
+        request.session.save()
     if request.method == 'POST':
-        uploaded=[]
         for file in request.FILES.getlist('files'):
             piece = Piece()
             piece.user_id = request.session.session_key
             piece.save()
             piece.file = file
             piece.save()
-            uploaded.append(file.name)
-        # Redirect to the document list after POST
-        return uploaded, 200
-
-    # Load documents for the list page
-    # documents = Document.objects.all()
-
-    # Render list page with the documents and the form
-    return {"message": "failed"}, 200
+    uploaded = [piece.file.name for piece in Piece.objects.filter(user_id=request.session.session_key)]
+    return uploaded, 200
     
 class MainView(generic.TemplateView):
     template_name = 'index.html'
