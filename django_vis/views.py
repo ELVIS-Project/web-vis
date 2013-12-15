@@ -111,7 +111,7 @@ def upload(request):
             piece.save()
             piece.file = file
             piece.save()
-    uploaded = [piece.file.name for piece in Piece.objects.filter(user_id=request.session.session_key)]
+    uploaded = [os.path.basename(piece.file.name) for piece in Piece.objects.filter(user_id=request.session.session_key)]
     return uploaded, 200
     
 class MainView(generic.TemplateView):
