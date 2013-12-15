@@ -51,6 +51,17 @@
             ko.applyBindings(wizard, document.getElementById('wizard'));
             ko.applyBindings(files_list, document.getElementById('import'));
             ko.applyBindings(pieces_list, document.getElementById('analysis-settings'));
+            // abuse the upload view to get files that are already uploaded
+            $.ajax({
+                method: 'get',
+                url: '/upload/',
+                success: function(filenames) {
+                    files_list.items.removeAll();
+                    filenames.forEach(function(filename){
+                        files_list.items.push({"Filename": filename})
+                    });
+                }
+            });
             $("#wizard").on('change', function () {
                 switch (selectedItem(this)) {
                     case 1:
@@ -75,6 +86,7 @@
             });
             $("#uploadForm").ajaxForm({
                 success: function(filenames) {
+                    files_list.items.removeAll();
                     filenames.forEach(function(filename){
                         files_list.items.push({"Filename": filename})
                     });
