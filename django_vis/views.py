@@ -102,6 +102,8 @@ def output_graph(request, filename=None):
 @decorators.json_view
 def upload(request):
     # Handle file upload
+    if request.session.session_key == None:
+        request.session.save()
     if request.method == 'POST':
         uploaded=[]
         for file in request.FILES.getlist('files'):
