@@ -34,10 +34,11 @@ from jsonview import decorators
 import settings
 from vis.workflow import WorkflowManager
 
+from django_vis.models import Piece
+
 @decorators.json_view
 def import_files(request):
-    filepaths = [os.path.join(settings.TEST_CORPUS_PATH, fname)
-                 for fname in request.GET.getlist('filenames[]')]
+    filepaths = [piece.file.path for piece in Piece.objects.filter(user_id=request.session.session_key)]
     wf = WorkflowManager(filepaths)
     wf.load('pieces')
     request.session['wf'] = wf
@@ -97,6 +98,27 @@ def output_table(request):
 def output_graph(request, filename=None):
     filename = request.session.session_key + '.png'
     return render_to_response('graph.html', context_instance=RequestContext(request, {'filename': filename}))
+    
+@decorators.json_view
+def upload(request):
+    # Handle file upload
+    if request.method == 'POST':
+        uploaded=[]
+        for file in request.FILES.getlist('files'):
+            piece = Piece()
+            piece.user_id = request.session.session_key
+            piece.save()
+            piece.file = file
+            piece.save()
+            uploaded.append(file.name)
+        # Redirect to the document list after POST
+        return uploaded, 200
+
+    # Load documents for the list page
+    # documents = Document.objects.all()
+
+    # Render list page with the documents and the form
+    return {"message": "failed"}, 200
     
 class MainView(generic.TemplateView):
     template_name = 'index.html'

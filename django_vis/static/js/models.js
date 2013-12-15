@@ -40,11 +40,7 @@ SelectableArray.prototype.removeSelected = function () {
 
 function ListOfFiles () {
     SelectableArray.call(this);
-    this.items = ko.observableArray([
-        {"Filename": "bwv77.mxl"},
-        {"Filename": "madrigal51.mxl"},
-        {"Filename": "madrigal51.mxl"}
-    ]);
+    this.items = ko.observableArray();
 }
 ListOfFiles.prototype = Object.create(SelectableArray.prototype);
 ListOfFiles.prototype.constructor = ListOfFiles;
