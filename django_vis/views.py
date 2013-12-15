@@ -121,6 +121,7 @@ def delete(request):
     for piece in user_pieces:
         if os.path.basename(piece.file.name) in delete_these:
             piece.delete()
+            piece.file.storage.delete(piece.file.path)
     uploaded = [os.path.basename(piece.file.name) for piece in Piece.objects.filter(user_id=request.session.session_key)]
     return uploaded, 200
     
