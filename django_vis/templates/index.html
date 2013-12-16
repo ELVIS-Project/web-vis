@@ -7,7 +7,29 @@
                 "sDom": "rt<'clear'>T",
                 "oTableTools": {
                     "sRowSelect": "multi",
-                    "aButtons": [ "select_all", "select_none" ],
+                    "aButtons": [ "select_all",
+                                  "select_none",
+                                  { "sExtends": "text",
+                                    "sButtonText": "Remove selected",
+                                    "fnClick": function() {
+                                        $.ajax({
+                                            method: 'get',
+                                            url: '/delete/',
+                                            data: {
+                                                'filenames': _.map(files_list.selectedItems(),
+                                                                function (element) { return element.Filename; })
+                                            },
+                                            dataType: "json",
+                                            success: function(filenames) {
+                                                files_list.items.removeAll();
+                                                filenames.forEach(function(filename){
+                                                    files_list.items.push({"Filename": filename})
+                                                });
+                                            }
+                                        });
+                                    }
+                                  } 
+                                ],
                     "sSelectedClass": "selected",
                     "fnRowSelected": function (nodes) {
                         $(this.dom.table).trigger("selectionChanged");
@@ -46,7 +68,7 @@
                 }
             });
             var wizard = new Wizard();
-            files_list = new ListOfFiles();
+            var files_list = new ListOfFiles();
             var pieces_list = new ListOfPieces();
             ko.applyBindings(wizard, document.getElementById('wizard'));
             ko.applyBindings(files_list, document.getElementById('import'));
@@ -115,24 +137,6 @@
                             window.open('/output/graph/');
                         }
                     },
-                });
-            });
-            
-            $("#remove-selected").click(function() {
-                $.ajax({
-                    method: 'get',
-                    url: '/delete/',
-                    data: {
-                        'filenames': _.map(files_list.selectedItems(),
-                                        function (element) { return element.Filename; })
-                    },
-                    dataType: "json",
-                    success: function(filenames) {
-                        files_list.items.removeAll();
-                        filenames.forEach(function(filename){
-                            files_list.items.push({"Filename": filename})
-                        });
-                    }
                 });
             });
             
@@ -378,15 +382,6 @@
                                         Add files to the list so they will
                                         be imported.
                                     </a>
-                                    <ul class="nav pull-right">
-                                        <li>
-                                            <a id="remove-selected"
-                                               href="javascript:void(0);">
-                                                <i class="icon-remove"></i>
-                                                Remove Selected
-                                            </a>
-                                        </li>
-                                    </ul>
                                 </div>
                             </div>
                             <form action="upload/" method="post" enctype="multipart/form-data" id="uploadForm">
