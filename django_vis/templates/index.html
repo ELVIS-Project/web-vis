@@ -46,7 +46,7 @@
                 }
             });
             var wizard = new Wizard();
-            var files_list = new ListOfFiles();
+            files_list = new ListOfFiles();
             var pieces_list = new ListOfPieces();
             ko.applyBindings(wizard, document.getElementById('wizard'));
             ko.applyBindings(files_list, document.getElementById('import'));
@@ -115,6 +115,24 @@
                             window.open('/output/graph/');
                         }
                     },
+                });
+            });
+            
+            $("#remove-selected").click(function() {
+                $.ajax({
+                    method: 'get',
+                    url: '/delete/',
+                    data: {
+                        'filenames': _.map(files_list.selectedItems(),
+                                        function (element) { return element.Filename; })
+                    },
+                    dataType: "json",
+                    success: function(filenames) {
+                        files_list.items.removeAll();
+                        filenames.forEach(function(filename){
+                            files_list.items.push({"Filename": filename})
+                        });
+                    }
                 });
             });
             
@@ -354,21 +372,8 @@
                                     </a>
                                     <ul class="nav pull-right">
                                         <li>
-                                            <a href="javascript:void(0);">
-                                                <i class="icon-file"></i>
-                                                Add File(s)
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="javascript:void(0);">
-                                                <i class="icon-folder-open"></i>
-                                                Add Folder(s)
-                                            </a>
-                                        </li>
-                                        <li>
                                             <a id="remove-selected"
-                                               href="javascript:void(0);"
-                                               data-bind="click: removeSelected">
+                                               href="javascript:void(0);">
                                                 <i class="icon-remove"></i>
                                                 Remove Selected
                                             </a>
@@ -401,7 +406,7 @@
                                             <a data-toggle="modal"
                                                href="#settings-all">
                                                 <i class="icon-ok"></i>
-                                                Settings for all
+                                                Global settings
                                             </a>
                                         </li>
                                         <li>

@@ -111,7 +111,18 @@ def upload(request):
             piece.save()
             piece.file = file
             piece.save()
-    uploaded = [piece.file.name for piece in Piece.objects.filter(user_id=request.session.session_key)]
+    uploaded = [os.path.basename(piece.file.name) for piece in Piece.objects.filter(user_id=request.session.session_key)]
+    return uploaded, 200
+    
+@decorators.json_view
+def delete(request):
+    delete_these = request.GET.getlist('filenames[]')
+    user_pieces = Piece.objects.filter(user_id=request.session.session_key)
+    for piece in user_pieces:
+        if os.path.basename(piece.file.name) in delete_these:
+            piece.delete()
+            piece.file.storage.delete(piece.file.path)
+    uploaded = [os.path.basename(piece.file.name) for piece in Piece.objects.filter(user_id=request.session.session_key)]
     return uploaded, 200
     
 class MainView(generic.TemplateView):
