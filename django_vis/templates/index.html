@@ -40,7 +40,8 @@
                 },
                 "oLanguage": {
                     "sEmptyTable": "No files added"
-                }
+                },
+                "bPaginate": false,
             });
             $("#pieces-list").dataTable({
                 "aoColumns": [
@@ -66,6 +67,7 @@
                 "oLanguage": {
                     "sEmptyTable": "Import pending..."
                 }
+                "bPaginate": false,
             });
             var wizard = new Wizard();
             var files_list = new ListOfFiles();
