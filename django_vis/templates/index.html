@@ -27,7 +27,7 @@
                     {"sTitle": "Part Names", "mData": "partNames"},
                     {"sTitle": "Offset", "mData": "offset"},
                     {"sTitle": "Part Combinations", "mData": "partCombinations"},
-                    {"sTitle": "Repeat Identical", "mData": "repeatIdentical"}
+                    {"sTitle": "Filter Identical", "mData": "repeatIdentical"}
                 ],
                 "sDom": "rt<'clear'>T",
                 "oTableTools": {
@@ -42,7 +42,7 @@
                     }
                 },
                 "oLanguage": {
-                    "sEmptyTable": "No pieces imported"
+                    "sEmptyTable": "Import pending..."
                 }
             });
             var wizard = new Wizard();
@@ -177,6 +177,14 @@
                 } else {
                     $("#value-n").prop("disabled", true);
                     $("#value-n").val("");
+                }
+            });
+            $("#offset-div :input").change(function() {
+                if ($("#offset-div :input").val() == "") {
+                    $("#repeat-ident-div :checkbox").prop("checked", false);
+                    $("#repeat-ident-div :checkbox").prop("disabled", true);
+                } else {
+                    $("#repeat-ident-div :checkbox").prop("disabled", false);
                 }
             });
             
@@ -436,7 +444,7 @@
                                                 &times;
                                             </button>
                                             <h4 class="modal-title">
-                                                Settings for all pieces
+                                                Global settings
                                             </h4>
                                         </div>
                                         <div class="modal-body">
@@ -525,15 +533,15 @@
                                                     <input type="text" class="form-control" placeholder="(optional)" />
                                                 </div>
                                                 <div class="form-group"
+                                                     id="repeat-ident-div">
+                                                    <label>
+                                                        <input type="checkbox" disabled> Filter Consecutive Identical Events
+                                                    </label>
+                                                </div>
+                                                <div class="form-group"
                                                      id="part-comb-div">
                                                     <label for="partCombinations">Part Combinations</label>
                                                     <input type="text" class="form-control" placeholder="(none selected)" />
-                                                </div>
-                                                <div class="form-group"
-                                                     id="repeat-ident-div">
-                                                    <label>
-                                                        <input type="checkbox"> Repeat consecutive identical events
-                                                    </label>
                                                 </div>
                                             </form>
                                         </div>
