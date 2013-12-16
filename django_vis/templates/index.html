@@ -7,7 +7,29 @@
                 "sDom": "rt<'clear'>T",
                 "oTableTools": {
                     "sRowSelect": "multi",
-                    "aButtons": [ "select_all", "select_none" ],
+                    "aButtons": [ "select_all",
+                                  "select_none",
+                                  { "sExtends": "text",
+                                    "sButtonText": "Remove selected",
+                                    "fnClick": function() {
+                                        $.ajax({
+                                            method: 'get',
+                                            url: '/delete/',
+                                            data: {
+                                                'filenames': _.map(files_list.selectedItems(),
+                                                                function (element) { return element.Filename; })
+                                            },
+                                            dataType: "json",
+                                            success: function(filenames) {
+                                                files_list.items.removeAll();
+                                                filenames.forEach(function(filename){
+                                                    files_list.items.push({"Filename": filename})
+                                                });
+                                            }
+                                        });
+                                    }
+                                  } 
+                                ],
                     "sSelectedClass": "selected",
                     "fnRowSelected": function (nodes) {
                         $(this.dom.table).trigger("selectionChanged");
@@ -18,7 +40,8 @@
                 },
                 "oLanguage": {
                     "sEmptyTable": "No files added"
-                }
+                },
+                "bPaginate": false,
             });
             $("#pieces-list").dataTable({
                 "aoColumns": [
@@ -27,7 +50,7 @@
                     {"sTitle": "Part Names", "mData": "partNames"},
                     {"sTitle": "Offset", "mData": "offset"},
                     {"sTitle": "Part Combinations", "mData": "partCombinations"},
-                    {"sTitle": "Repeat Identical", "mData": "repeatIdentical"}
+                    {"sTitle": "Filter Identical", "mData": "repeatIdentical"}
                 ],
                 "sDom": "rt<'clear'>T",
                 "oTableTools": {
@@ -42,11 +65,12 @@
                     }
                 },
                 "oLanguage": {
-                    "sEmptyTable": "No pieces imported"
+                    "sEmptyTable": "Import pending..."
                 }
+                "bPaginate": false,
             });
             var wizard = new Wizard();
-            files_list = new ListOfFiles();
+            var files_list = new ListOfFiles();
             var pieces_list = new ListOfPieces();
             ko.applyBindings(wizard, document.getElementById('wizard'));
             ko.applyBindings(files_list, document.getElementById('import'));
@@ -118,24 +142,6 @@
                 });
             });
             
-            $("#remove-selected").click(function() {
-                $.ajax({
-                    method: 'get',
-                    url: '/delete/',
-                    data: {
-                        'filenames': _.map(files_list.selectedItems(),
-                                        function (element) { return element.Filename; })
-                    },
-                    dataType: "json",
-                    success: function(filenames) {
-                        files_list.items.removeAll();
-                        filenames.forEach(function(filename){
-                            files_list.items.push({"Filename": filename})
-                        });
-                    }
-                });
-            });
-            
             Array.prototype.sameAs = function(array) {
                 if (this.length != array.length) return false;
                 for (var i=0; i<this.length; i++) {
@@ -177,6 +183,14 @@
                 } else {
                     $("#value-n").prop("disabled", true);
                     $("#value-n").val("");
+                }
+            });
+            $("#offset-div :input").change(function() {
+                if ($("#offset-div :input").val() == "") {
+                    $("#repeat-ident-div :checkbox").prop("checked", false);
+                    $("#repeat-ident-div :checkbox").prop("disabled", true);
+                } else {
+                    $("#repeat-ident-div :checkbox").prop("disabled", false);
                 }
             });
             
@@ -370,15 +384,6 @@
                                         Add files to the list so they will
                                         be imported.
                                     </a>
-                                    <ul class="nav pull-right">
-                                        <li>
-                                            <a id="remove-selected"
-                                               href="javascript:void(0);">
-                                                <i class="icon-remove"></i>
-                                                Remove Selected
-                                            </a>
-                                        </li>
-                                    </ul>
                                 </div>
                             </div>
                             <form action="upload/" method="post" enctype="multipart/form-data" id="uploadForm">
@@ -436,7 +441,7 @@
                                                 &times;
                                             </button>
                                             <h4 class="modal-title">
-                                                Settings for all pieces
+                                                Global settings
                                             </h4>
                                         </div>
                                         <div class="modal-body">
@@ -512,7 +517,7 @@
                                                   id="settings-selected-form">
                                                 <div class="form-group"
                                                      id="title-div">
-                                                    <label for="pieceTitle">Piece title</label>
+                                                    <label for="pieceTitle">Piece Title</label>
                                                     <input type="text" class="form-control" />
                                                 </div>
                                                 <div class="form-group"
@@ -521,19 +526,19 @@
                                                 </div>
                                                 <div class="form-group"
                                                      id="offset-div">
-                                                    <label for="offsetInterval">Offset interval</label>
+                                                    <label for="offsetInterval">Offset Interval</label>
                                                     <input type="text" class="form-control" placeholder="(optional)" />
+                                                </div>
+                                                <div class="form-group"
+                                                     id="repeat-ident-div">
+                                                    <label>
+                                                        <input type="checkbox" disabled> Filter Consecutive Identical Events
+                                                    </label>
                                                 </div>
                                                 <div class="form-group"
                                                      id="part-comb-div">
                                                     <label for="partCombinations">Part Combinations</label>
                                                     <input type="text" class="form-control" placeholder="(none selected)" />
-                                                </div>
-                                                <div class="form-group"
-                                                     id="repeat-ident-div">
-                                                    <label>
-                                                        <input type="checkbox"> Repeat consecutive identical events
-                                                    </label>
                                                 </div>
                                             </form>
                                         </div>
@@ -565,12 +570,12 @@
                              <div class="navbar">
                                 <div class="navbar-inner">
                                     <a class="brand">
-                                        Choose settings for experiment
+                                        Choose settings for the experiment.
                                     </a>
                                 </div>
                             </div>
                             <form role="form">
-                                <h4>Experiment to run</h4>
+                                <h4>Experiment to Run</h4>
                                 <div class="radio">
                                     <label>
                                         <input type="radio" name="objectsRadio" value="intervals" checked>
@@ -587,7 +592,7 @@
                                         The length of the n-gram you wish to produce.
                                     </span>
                                 </div>
-                                <h4>How to show results</h4>
+                                <h4>How to Show Results</h4>
                                 <div class="radio">
                                     <label>
                                         <input type="radio" name="outputRadio" value="table" checked>
@@ -601,14 +606,14 @@
                                     </label>
                                 </div>
                                 <div class="form-group">
-                                    <label for="topx">"Top x" filter</label>
+                                    <label for="topx">"Top X" Filter</label>
                                     <input type="text" id="topx" class="form-control" placeholder="optional">
                                     <span class="help-inline">
                                         Show only the x highest results.
                                     </span>
                                 </div>
                                 <div class="form-group">
-                                    <label for="threshold">Threshold filter</label>
+                                    <label for="threshold">Threshold Filter</label>
                                     <input type="text" id="threshold" class="form-control" placeholder="optional">
                                     <span class="help-inline">
                                         Do not show results with fewer than this many occurences.
