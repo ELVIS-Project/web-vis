@@ -344,13 +344,35 @@
     <div id="loading-div">
         <div class="preloader"><i></i><i></i><i></i><i></i></div>
     </div>
+    <div class="navbar navbar-default">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand"><img src="{{ STATIC_URL }}img/v.png"></a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="">
+                <a href="http://elvisproject.ca">ELVIS project</a>
+              </li>
+              <li class="">
+                <a href="#">About</a>
+              </li>
+              <li class="">
+                <a href="#">Help</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class='container'>
         <div class='row'>
             <div class='span2'></div>
             <div class='span12'>
-                <div class="page-header">
-                    <h1>vis X</h1>
-                </div>
                 <div id="wizard" class="wizard" data-bind="wizardStep: state">
                     <ul class="steps">
                         <li data-target="#import" class="active">
