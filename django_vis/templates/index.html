@@ -210,9 +210,12 @@
                     form.find("#part-names-div").children(":input").remove();
                     form.find("#part-names-div").children("br").remove();
                     piece.partNames().forEach(function(partName) {
-                        input = $('<input type="text" class="form-control"><br>');
+                        input = $('<input type="text" class="form-control">');
                         input.val(partName);
+                        i = piece.partNames().indexOf(partName);
+                        checkbox = $('<input type="checkbox" value="'+i+'"><br>');
                         form.find("#part-names-div").append(input);
+                        form.find("#part-names-div").append(checkbox);
                     });
                     form.find("#part-comb-div :input").val(piece.partCombinations());
                     form.find("#repeat-ident-div :checkbox").prop("checked", piece.repeatIdentical());
@@ -247,16 +250,20 @@
                         
                         if (allPartNames.allValuesSame()) {
                             for (var i=0; i<allNumbersOfParts[0]; i++) {
-                                input = $('<input type="text" class="form-control"><br>');
+                                input = $('<input type="text" class="form-control">');
                                 input.val(allPartNames[0][i]);
                                 form.find("#part-names-div").append(input);
+                                checkbox = $('<input type="checkbox" value="'+i+'"><br>');
+                                form.find("#part-names-div").append(checkbox);
                             }
                         // if the part names aren't the same, call them "part i"
                         } else {
                             for (var i=0; i<allNumbersOfParts[0]; i++) {
-                                input = $('<input type="text" class="form-control"><br>');
+                                input = $('<input type="text" class="form-control">');
                                 input.val("Part " + i);
                                 form.find("#part-names-div").append(input);
+                                checkbox = $('<input type="checkbox" value="'+i+'"><br>');
+                                form.find("#part-names-div").append(checkbox);
                             }
                         }
                         showElements.push(form.find("#part-names-div"));
@@ -298,6 +305,37 @@
                 $("#settings-selected").modal("show");
             });
             
+            $("#add-combo-button").click(function() {
+                var partCombo = new Array();
+                $("#part-names-div :checkbox").each(function(index, checkbox) {
+                    if ($(checkbox).prop("checked")) {
+                        partCombo.push(+checkbox.value);
+                        $(checkbox).prop("checked", false);
+                    }
+                });
+                if (partCombo.length<2) {
+                    alert("Please select 2 or more parts.");
+                } else {
+                    var existingParts = $("#part-comb-div :input").val();
+                    if (existingParts.charAt(0)=="[") {
+                        existingParts = JSON.parse(existingParts);
+                    } else {
+                        existingParts = [];
+                    }
+                    existingParts.push(partCombo);
+                    existingParts = JSON.stringify(existingParts);
+                    $("#part-comb-div :input").val(existingParts);
+                }
+            });
+            
+            $("#add-all-button").click(function() {
+                $("#part-comb-div :input").val("all");
+            });
+            
+            $("#add-pairs-button").click(function() {
+                $("#part-comb-div :input").val("all pairs");
+            });
+            
             $("#settings-selected-save-button").click(function() {
                 var form = $("#settings-selected-form");
                 pieces_list.selectedItems().forEach(function(piece) {
@@ -313,7 +351,7 @@
                     if ($("#repeat-ident-div").is(":visible")) {
                         piece.repeatIdentical($("#repeat-ident-div :checkbox").prop("checked"));
                     }
-                    var partNameInputs = $("#part-names-div :input");
+                    var partNameInputs = $("#part-names-div :text");
                     // Update part name only if it's been changed (no longer 'Part i')
                     for (var i=0; i<partNameInputs.length; i++) {
                         var partName = $(partNameInputs[i]).val();
@@ -344,13 +382,35 @@
     <div id="loading-div">
         <div class="preloader"><i></i><i></i><i></i><i></i></div>
     </div>
+    <div class="navbar navbar-default">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand"><img src="{{ STATIC_URL }}img/v.png"></a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="">
+                <a href="http://elvisproject.ca">ELVIS project</a>
+              </li>
+              <li class="">
+                <a href="#">About</a>
+              </li>
+              <li class="">
+                <a href="#">Help</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class='container'>
         <div class='row'>
             <div class='span2'></div>
             <div class='span12'>
-                <div class="page-header">
-                    <h1>vis X</h1>
-                </div>
                 <div id="wizard" class="wizard" data-bind="wizardStep: state">
                     <ul class="steps">
                         <li data-target="#import" class="active">
@@ -524,6 +584,15 @@
                                                      id="part-names-div">
                                                     <label for="partNames">Part Names</label>
                                                 </div>
+                                                <button type="button" class="btn btn-primary" id="add-combo-button">Add part combination</button>
+                                                <button type="button" class="btn btn-primary" id="add-all-button">Add all parts</button>
+                                                <button type="button" class="btn btn-primary" id="add-pairs-button">Add all pairs</button>
+                                                <br><br>
+                                                <div class="form-group"
+                                                     id="part-comb-div">
+                                                    <label for="partCombinations">Part Combinations</label>
+                                                    <input type="text" class="form-control" placeholder="(none selected)" />
+                                                </div>
                                                 <div class="form-group"
                                                      id="offset-div">
                                                     <label for="offsetInterval">Offset Interval</label>
@@ -534,11 +603,6 @@
                                                     <label>
                                                         <input type="checkbox" disabled> Filter Consecutive Identical Events
                                                     </label>
-                                                </div>
-                                                <div class="form-group"
-                                                     id="part-comb-div">
-                                                    <label for="partCombinations">Part Combinations</label>
-                                                    <input type="text" class="form-control" placeholder="(none selected)" />
                                                 </div>
                                             </form>
                                         </div>
