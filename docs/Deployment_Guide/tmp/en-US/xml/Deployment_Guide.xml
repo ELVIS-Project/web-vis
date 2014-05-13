@@ -7,10 +7,429 @@
 ]>
 <article>
 	<xi:include href="Article_Info.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
-	 <para>
-		This is a test paragraph
-	</para>
-	 <xi:include href="Revision_History.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
-	 <index />
+	 <section id="sect-install_host">
+		<title>Install the Host Operating System (Ubuntu 12.04)</title>
+		 <para>
+			For all Linux distributions, you'll need to make sure that the VM will have access to either its own network adapter, for bridged networking, or to a virtual network that is accessible by computers external to the host. Also, it's best to use the "virtio" network adapter, if the host supports it
+		</para>
+		 <para>
+			Our deployment server is Ubuntu 12.04 virtual machine with lots of memory and some CPU space. When asked to install additional (server) packages, I didn't select any, because we'd probably have installed more software than needed, which is an unnecessary burden for many reasons.
+		</para>
+		 <section>
+			<title>Minor Customization and Install Updates</title>
+			 <procedure>
+				<para>
+					Some things that I like to do, but that are entirely optional:
+				</para>
+				 <step>
+					<para>
+						I added "NOPASSWD" to the relevant place in <filename>/etc/sudoers</filename>, because there's a lot of <command>sudo</command> and I don't like putting in my password all the time.
+					</para>
+				</step>
+				 <step>
+					<para>
+						I added the following lines to <filename>/etc/apt/sources.list</filename>, commented the pre-existing lines they replace, and also commented out the "backports" repositories. 
+<programlisting>deb http://mirror.ncs.mcgill.ca/ubuntu/ oneiric main restricted
+    deb http://mirror.ncs.mcgill.ca/ubuntu/ oneiric-updates main restricted
+</programlisting>
+
+					</para>
+				</step>
+
+			</procedure>
+			
+			 <procedure>
+				<para>
+					I installed the <application>VirtualBox</application> guest additions, which you should not do unless you're running <application>VirtualBox</application>, which you shouldn't do unless you're just testing the Web app.
+				</para>
+				 <step>
+					<para>
+						Run <command>$ sudo apt-get install virtualbox-guest-x11</command>.
+					</para>
+				</step>
+
+			</procedure>
+			
+			 <procedure>
+				<para>
+					I updated then restarted system.
+				</para>
+				 <step>
+					<para>
+						Run <command>$ sudo apt-get update</command>.
+					</para>
+				</step>
+				 <step>
+					<para>
+						Run <command>$ sudo apt-get upgrade</command>.
+					</para>
+				</step>
+				 <step>
+					<para>
+						Run <command>$ sudo init 6</command>.
+					</para>
+				</step>
+
+			</procedure>
+			
+
+		</section>
+		
+		 <section>
+			<title>Enable the Firewall and AppArmor</title>
+			 <procedure>
+				<para>
+					I enabled the firewall, closing all ports but 22 and 80, which are required for SSH login and HTTP access respectively.
+				</para>
+				 <note>
+					<para>
+						Refer to the "Firewall" chapter of the <citetitle>Ubuntu Server Guide</citetitle> at <ulink url="https://help.ubuntu.com/12.04/serverguide/firewall.html">help.ubuntu.com/12.04/serverguide/firewall.html</ulink> for more information.
+					</para>
+				</note>
+				 <step>
+					<para>
+						Run <command>$ sudo ufw allow 22</command>.
+					</para>
+				</step>
+				 <step>
+					<para>
+						Run <command>$ sudo ufw allow 80</command>.
+					</para>
+				</step>
+				 <step>
+					<para>
+						Run <command>$ sudo ufw enable</command>.
+					</para>
+				</step>
+
+			</procedure>
+			
+			 <procedure>
+				<para>
+					I ensured there were no "unconfined" processes that AppArmor should be confining. We recommend you confine <application>apache2</application>, but we do not provide instructions at this time.
+				</para>
+				 <note>
+					<para>
+						Refer to the "AppArmor" chapter of the <citetitle>Ubuntu Server Guide</citetitle> at <ulink url="https://help.ubuntu.com/12.04/serverguide/apparmor.html">help.ubuntu.com/12.04/serverguide/apparmor.html</ulink> for more information.
+					</para>
+				</note>
+				 <step>
+					<para>
+						Run <command>$ sudo apparmor_status</command>.
+					</para>
+				</step>
+
+			</procedure>
+			
+
+		</section>
+		
+		 <section>
+			<title>Add tmpfs for Runtime Files</title>
+			 <para>
+				I added an in-memory temporary directory for the Web app's temporary files. This will give us mildly improved speed and security. The directory will not mount properly until after you install the Web app. Change the value of the "size" mount option according to how much memory your server has. In <filename>/etc/fstab</filename>, add: 
+<programlisting>tmpfs   /usr/local/vis_counterpoint/runtime/outputs     tmpfs   size=8G,nodev,noexec,nosuid,uid=www-data,gid=www-data,mode=770     0 0</programlisting>
+
+			</para>
+
+		</section>
+		
+		 <section>
+			<title>Configure the Network</title>
+			 <para>
+				Finally, just a note about network configuration, since it was unexpectedly retro for me. You need to edit <filename>/etc/network/interfaces</filename> so it looks something like this: 
+<programlisting>iface eth0 inet static
+    address 172.16.1.55
+    gateway 172.16.1.1
+    network 172.16.1.0
+    netmask 255.255.255.0</programlisting>
+
+			</para>
+
+		</section>
+		
+
+	</section>
+	
+	 <section id="sect-install_software">
+		<title>Install the Web App and Dependencies</title>
+		 <section>
+			<title>Install R</title>
+			 <para>
+				Since the version of <application>R</application> included with Ubuntu 13.04 is too old, we recommend you install <application>R</application> from <firstterm><acronym>CRAN</acronym></firstterm> (the Comprehensive <application>R</application> Archive Network&mdash;refer to <ulink url="http://cran.r-project.org">cran.r-project.org</ulink> for more information).
+			</para>
+			 <procedure>
+				<step>
+					<para>
+						Add the <acronym>CRAN</acronym> repository mirror to <filename>/etc/apt/sources.list</filename>: 
+<programlisting>deb http://cran.skazkaforyou.com/bin/linux/ubuntu precise/</programlisting>
+						 The <ulink url="http://skazkaforyou.com">skazkaforyou.com</ulink> mirror is run by iWeb in Montréal, Canada. We recommend you choose a mirror near your server from the list of CRAN mirrors at <ulink url="http://cran.r-project.org/mirrors.html">http://cran.r-project.org/mirrors.html</ulink>.
+					</para>
+
+				</step>
+				 <step>
+					<para>
+						Add the <acronym>CRAN</acronym> package-signing key. Run 
+<programlisting>$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9</programlisting>
+
+					</para>
+
+				</step>
+				 <step>
+					<para>
+						Run the following commands to install <application>R</application>. Note there are many dependencies. 
+<programlisting>$ sudo apt-get update
+$ sudo apt-get upgrade
+$ sudo apt-get install r-base</programlisting>
+
+					</para>
+
+				</step>
+				 <step>
+					<para>
+						Finally, use <application>R</application> to install the <package>ggplot2</package> from <acronym>CRAN</acronym>. 
+<programlisting>$ sudo R
+(R starts)
+&gt; install.packages("ggplot2")
+&gt; q()
+(do not save the workspace)</programlisting>
+
+					</para>
+
+				</step>
+
+			</procedure>
+			
+
+		</section>
+		
+		 <section>
+			<title>Install and Configure the Web Server</title>
+			 <para>
+				We recommend you use the Apache HTTPD Web server, since it is what we use. Refer to the "HTTPD" chapter of the <citetitle>Ubuntu Server Guide</citetitle> at <ulink url="https://help.ubuntu.com/12.04/serverguide/httpd.html">help.ubuntu.com/12.04/serverguide/httpd.html</ulink> for more information about the Apache Web server.
+			</para>
+			 <note>
+				<para>
+					If required, you must configure port forwarding and other router and hypervisor network settings before you start this procedure.
+				</para>
+
+			</note>
+			 <procedure>
+				<step>
+					<para>
+						Install HTTPD.
+<programlisting>$ sudo apt-get install apache2</programlisting>
+
+					</para>
+
+				</step>
+				 <step>
+					<para>
+						Edit <filename>/etc/apache2/sites-available/default</filename> to remove the <filename>/usr/share/doc/</filename> directory. We will add the Counterpoint Web App later.
+					</para>
+
+				</step>
+				 <step>
+					<para>
+						Edit <filename>/etc/apache2/apache2.conf</filename> to set the <command>ServerName</command> directive. To test, we use <uri>elvis-test-server</uri>, and for deployment we use <uri>counterpoint.elvisproject.ca</uri>:
+<programlisting>ServerName counterpoint.elvisproject.ca</programlisting>
+
+					</para>
+
+				</step>
+				 <step>
+					<para>
+						Add the following lines to <filename>/etc/apache2/apache2.conf</filename> to improve security:
+<programlisting>ServerSignature Off
+ServerTokens Prod</programlisting>
+						It looks like the Ubuntu-compiled version both ignores your settings and the Apache-specified default settings, but maybe I just made a mistake.
+					</para>
+
+				</step>
+
+			</procedure>
+			
+
+		</section>
+		
+		 <section>
+			<title>Install the Counterpoint Web App</title>
+			 <para>
+				Complete the following procedure to install the Counterpoint Web app, the VIS Framework, and their dependencies, then run automated tests.
+			</para>
+			 <procedure>
+				<step>
+					<para>
+						Install <application>git</application>.
+<programlisting>$ sudo apt-get install git</programlisting>
+
+					</para>
+
+				</step>
+				 <step>
+					<para>
+						Install <application>pip</application> and other software required to build <application>VIS</application>.
+<programlisting>$ sudo apt-get install python-pip python-dev g++</programlisting>
+
+					</para>
+
+				</step>
+				 <step>
+					<para>
+						Make the installation directory. We do not recommend you use <filename>/var/www</filename>, which would allow access to the source code.
+<programlisting>$ sudo mkdir /usr/local/vis_counterpoint
+$ cd /usr/local/vis_counterpoint</programlisting>
+
+					</para>
+
+				</step>
+				 <step>
+					<para>
+						Use <application>git</application> to clone the <application>VIS Framework</application>.
+<programlisting>$ sudo git clone https://github.com/ELVIS-Project/vis.git</programlisting>
+
+					</para>
+
+				</step>
+				 <step>
+					<para>
+						Optional. Use <application>git</application> to choose the tag of a specific version of the <application>VIS Framework</application>.
+<programlisting>$ sudo git checkout tags/<replaceable>tag_name</replaceable></programlisting>
+
+					</para>
+
+				</step>
+				 <step>
+					<para>
+						Install the <application>VIS Framework</application> requirements. Note this may take more than fifteen minutes.
+<programlisting>$ sudo pip install -r vis/requirements.txt</programlisting>
+
+					</para>
+
+				</step>
+				 <step>
+					<para>
+						Optional. Install the <application>VIS Framework</application>'s optional requirements. Note that, for the Counterpoint Web App, the optional components should not be considered optional since they greatly affect computational speed.
+<programlisting>$ sudo pip install -r vis/optional_requirements.txt</programlisting>
+						Ensure you read the output from <application>pip</application>, since an error may leave some packages uninstalled.
+					</para>
+
+				</step>
+				 <step>
+					<para>
+						Run the <application>VIS Framework</application>'s automated tests.
+<programlisting>$ cd vis &amp;&amp; python vis/run_tests.py &amp;&amp; cd ..</programlisting>
+
+					</para>
+
+				</step>
+				 <step>
+					<para>
+						Ensure you are in the <filename>/usr/local/vis_counterpoint</filename> directory, then clone the "web-vis" repository.
+<programlisting>$ sudo git clone https://github.com/ELVIS-Project/web-vis.git</programlisting>
+						You may wish to checkout the tag of a specific release.
+					</para>
+
+				</step>
+				 <step>
+					<para>
+						Install the "web-vis" requirements.
+<programlisting>$ sudo pip install -r web-vis/requirements.txt</programlisting>
+
+					</para>
+
+				</step>
+				 <step>
+					<para>
+						Run the "web-vis" automated tests.
+<programlisting>$ ????????????????????????</programlisting>
+						Oh, they there are none.
+					</para>
+
+				</step>
+
+			</procedure>
+			
+
+		</section>
+		
+
+	</section>
+	
+	 <section id="sect-configure_software">
+		<title>Configure the Web App</title>
+		 <section>
+			<title>Configure the Counterpoint Web App with Apache</title>
+			 <para>
+				- install mod_wsgi for apache2: <command>$ sudo apt-get install libapache2-mod-wsgi</command> - the LoadModule part is automatically added, and apache2 is restarted - rewrite the VirtualHost block in <filename>/etc/apache2/sites-available/default</filename>: - WSGIScriptAlias first_thing second_thing *** the first thing is the URL path; use / for the root, or something without trailing slash *** the second thing is obvs the django_vis thing (must be full pathname, not python module) - add Directory to allow apache to access the vis source code - because I'm using the URL root, I have to add "Alias" directives for favicon, robots, and humans - you get something like this... 
+<programlisting><![CDATA[
+<VirtualHost *:80>
+    ServerName counterpoint.elvisproject.ca
+    ServerAdmin webmaster@elvisproject.ca
+    WSGIScriptAlias / /usr/local/vis_counterpoint/web-vis/django_vis/wsgi.py
+    WSGIDaemonProcess counterpoint.elvisproject.ca processes=2 threads=15 display-name=%{GROUP}
+    WSGIProcessGroup counterpoint.elvisproject.ca
+    <Directory /usr/local/vis_counterpoint>
+        Order allow,deny
+        Allow from all
+    </Directory>
+
+    DocumentRoot /var/www
+
+    Alias /robots.txt /usr/local/vis_counterpoint/web-vis/robots.txt
+    Alias /humans.txt /usr/local/vis_counterpoint/web-vis/humans.txt
+    Alias /favicon.ico /usr/local/vis_counterpoint/web-vis/favicon.ico
+    Alias /static /usr/local/vis_counterpoint/web-vis/django_vis/static
+
+    ErrorLog ${APACHE_LOG_DIR}/vis_error.log
+    CustomLog ${APACHE_LOG_DIR}/vis_access.log common
+</VirtualHost>
+]]>
+</programlisting>
+				 - restart apache2: <command>$ sudo service apache2 restart</command>
+			</para>
+
+		</section>
+		
+		 <section>
+			<title>Configure the Web App because We Said So</title>
+			 <para>
+				*** NB: in settings.py, I changed the follwing lines (which is totally not ideal) 
+<programlisting>
+'NAME': '/usr/local/vis_counterpoint/runtime/database.sqlite3',
+...
+MEDIA_ROOT = '/usr/local/vis_counterpoint/runtime/outputs/'
+...
+MEDIA_URL = 'http://counterpoint.elvisproject.ca/media/'
+</programlisting>
+				 *** NB: in wsgi.py, I added things to the sys.path (which is totally not ideal) 
+<programlisting>
+import sys
+sys.path.insert(0, '/usr/local/vis_counterpoint/web-vis')
+sys.path.insert(1, '/usr/local/vis_counterpoint')
+</programlisting>
+				 - edit vis/workflow.py, changing 
+<programlisting>
+_R_bar_chart_path = u'scripts/R_bar_chart.r'
+... to...
+_R_bar_chart_path = u'/usr/local/vis_counterpoint/vis/scripts/R_bar_chart.r'
+</programlisting>
+				 ** remove unused apache modules?
+			</para>
+
+		</section>
+		
+		 <section>
+			<title>Other Things</title>
+			 <para>
+				- TODO: properly set the timezone (somehow it's an hour behind) - make sure <filename>/tmp/music21</filename> is owned by www-data:www-data with read/write 744 permissions - TODO: figure out how to change the "scratch files" directory without using the <filename>~/.music21rc</filename> file - make the VIS temp directories: <command>$ sudo mkdir /usr/local/vis_counterpoint</command> <command>$ sudo mkdir /usr/local/vis_counterpoint/outputs</command> <command>$ sudo chown -R www-data:www-data /usr/local/vis_counterpoint</command> - have to run "python manage.py syncdb" to create the sqlite3 database file <command>$ sudo passwd www-data</command> (to something easy) <command>$ su www-data</command> <command>$ python manage.py syncdb</command> (choose "no" when asked about "superusers") <command>$ exit</command> <command>$ sudo service apache2 restart</command> <command>$ sudo passwd www-data</command> (to something incredibly difficult) *** TODO: this is such a hack! *** TODO: set the FQDN
+			</para>
+
+		</section>
+		
+
+	</section>
+	
+	 <!--  <xi:include href="Revision_History.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />  --> <!--  <index />  -->
 </article>
 
