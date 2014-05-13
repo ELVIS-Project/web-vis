@@ -27,7 +27,6 @@
 import os
 
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
-TEST_CORPUS_PATH = os.path.abspath('{}/../../test_corpus'.format(PROJECT_PATH))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -42,7 +41,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql',
                                                  # 'sqlite3' or 'oracle'.
-        'NAME': 'database.sqlite3',  # Or path to database file if using sqlite3.
+        'NAME': '/tmp/vis/database.sqlite3',  # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': '',
         'PASSWORD': '',
@@ -54,7 +53,7 @@ DATABASES = {
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['counterpoint.elvisproject.ca']
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -81,7 +80,7 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-MEDIA_ROOT = '/home/juliusrain/code/test_output/'
+MEDIA_ROOT = '/tmp/vis/outputs/'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
