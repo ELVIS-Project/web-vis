@@ -5,9 +5,9 @@
 # Program Description:    Web-based User Interface for vis
 #
 # Filename:               django-vis/views.py
-# Purpose:                ????
+# Purpose:                Holds views for the Counterpoint Web App
 #
-# Copyright (C) 2013 Jamie Klassen, Saining Li
+# Copyright (C) 2013 to 2014 Jamie Klassen, Saining Li, and Christopher Antila
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -22,6 +22,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #--------------------------------------------------------------------------------------------------
+"Holds views for the Counterpoint Web App"
 
 import traceback
 import os
@@ -68,11 +69,20 @@ def run_experiment(request):
     wf.settings(None, 'interval quality', interval_quality)
     wf.settings(None, 'simple intervals', simple_intervals)
     # run experiment
-    experiment = 'intervals' if request.GET['experiment'] == 'intervals' else 'interval n-grams'
+    output = request.GET['output']
+    if 'intervals' == request.GET['experiment']:
+        experiment = 'intervals'
+    elif 'interval n-grams' == request.GET['experiment']:
+        experiment = 'interval n-grams'
+    else:
+        # default experiment; it's the one with less work... just to avoid a crash
+        experiment = 'intervals'
+    if 'lilypond' == output:
+        # output('LilyPond') requires not counting frequency
+        wf.settings(None, 'count frequency', False)
     n = None if request.GET['n'] == '' else int(request.GET['n'])
     topx = None if request.GET['topx'] == '' else int(request.GET['topx'])
     threshold = None if request.GET['threshold'] == '' else int(request.GET['threshold'])
-    output = request.GET['output']
     if request.GET['experiment'] == 'intervals':
         wf.run('intervals')
     else:
@@ -86,6 +96,15 @@ def run_experiment(request):
     elif output == 'graph':
         wf.output('R histogram', "%s%s" % (settings.MEDIA_ROOT, filename), top_x=topx, threshold=threshold)
         filename = filename + '.png'
+    elif output == 'lilypond':
+        wf.output('LilyPond', "%s%s" % (settings.MEDIA_ROOT, filename), top_x=topx, threshold=threshold)
+
+        #fsock = open(settings.MEDIA_ROOT + filename + '.pdf', 'r')
+        zell = {'mimetype': 'application/pdf',
+                'Content-Disposition': 'attachment; filename=%s%s.pdf' % (settings.MEDIA_URL, filename),
+                'score_location': '%s%s.pdf' % (settings.MEDIA_URL, filename),
+                'type': 'lilypond'}
+        return zell, 200
     else:
         pass
     return {'type': output}, 200
@@ -99,6 +118,10 @@ def output_graph(request, filename=None):
     filename = request.session.session_key + '.png'
     return render_to_response('graph.html', context_instance=RequestContext(request, {'filename': filename}))
     
+def output_score(request, filename=None):
+    filename = request.session.session_key + '.pdf'
+    return render_to_response('graph.html', context_instance=RequestContext(request, {'filename': filename}))
+
 @decorators.json_view
 def upload(request):
     # Handle file upload
