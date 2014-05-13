@@ -5,3 +5,7 @@
 local_settings.py
 *~
 *.sqlite3
+docs/publican-VIS/tmp
+docs/publican-VIS/build
+docs/Deployment_Guide/tmp
+docs/Deployment_Guide/build
