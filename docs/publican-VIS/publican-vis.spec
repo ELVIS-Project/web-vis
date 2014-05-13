@@ -5,13 +5,13 @@ Name:		publican-vis
 Summary:	Common documentation files for %{brand}
 Version:	0.1
 Release:	0%{?dist}
-License:	SETUP: Set This
+License:	CC-BY-SA 4.0
 Group:		Applications/Text
 Buildroot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Buildarch:	noarch
 Source:		https://www.SETUP.set.me.example.com/source/%{name}-%{version}.tgz
-Requires:	publican
-BuildRequires:	publican
+#Requires:	publican
+#BuildRequires:	publican
 URL:		https://www.SETUP.set.me.example.com
 
 %description
@@ -54,6 +54,6 @@ rm -rf $RPM_BUILD_ROOT
 %{wwwdir}/%{brand}
 
 %changelog
-* Thu Nov 28 2013  SETUP:YourName <SETUP:your.email@example.com> 0.1
+* Thu Nov 28 2013  Christopher Antila christopher.antila@mail.mcgill.ca 0.1
 - Created Brand
 

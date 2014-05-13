@@ -1,4 +1,4 @@
 <?xml version='1.0' encoding='utf-8' ?>
 <!DOCTYPE legalnotice PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 ]>
-<legalnotice><para>Copyright &lt;trademark class=&quot;copyright&quot;&gt;&lt;/trademark&gt; &amp;YEAR; &amp;HOLDER;</para><para>SETUP: Enter the blurb for your license here. Often a short description of the license with a URL linking to the full text.</para></legalnotice>
+<legalnotice><para>Copyright &lt;trademark class=&quot;copyright&quot;&gt;&lt;/trademark&gt; &amp;2013 &amp;Christopher Antila</para><para>Creative Commons Attribution-ShareAlike 4.0 International (<ulink url="https://creativecommons.org/licenses/by-sa/4.0/deed.en_US">https://creativecommons.org/licenses/by-sa/4.0/deed.en_US</ulink>)</para></legalnotice>
