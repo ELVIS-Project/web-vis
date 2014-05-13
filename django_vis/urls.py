@@ -4,10 +4,10 @@
 # Program Name:           django-vis
 # Program Description:    Web-based User Interface for vis
 #
-# Filename:               django-vis/uls.py
-# Purpose:                ????
+# Filename:               django-vis/urls.py
+# Purpose:                URL patterns for the Counterpoint Web App
 #
-# Copyright (C) 2013 Jamie Klassen, Saining Li
+# Copyright (C) 2013, 2014 Jamie Klassen, Saining Li, and Christopher Antila
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -22,11 +22,15 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #--------------------------------------------------------------------------------------------------
+"URL patterns for the Counterpoint Web App"
+
+# allow using 'urlpatterns' as a constant
+# pylint: disable=invalid-name
 
 from django.conf.urls import patterns, url
 from django.conf import settings
-from django.conf.urls.static import static
-import views
+#from django.conf.urls.static import static
+from . import views
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -34,7 +38,6 @@ import views
 
 urlpatterns = patterns(
     '',
-    # Examples:
     url(r'^$', views.MainView.as_view(), name='main'),
     url(r'^api/import/?$', views.import_files, name='import'),
     url(r'^api/experiment/?$', views.run_experiment, name='experiment'),
@@ -42,14 +45,9 @@ urlpatterns = patterns(
     url(r'^output/graph/?$', views.output_graph, name='graph'),
     url(r'^upload/$', views.upload),
     url(r'^delete/$', views.delete),
-    # url(r'^django_vis/', include('django_vis.foo.urls')),
-
-    # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
-    # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
 )
 urlpatterns += patterns('',
-        (r'^media/(?P<path>.*)$', 'django.views.static.serve', {
-        'document_root': settings.MEDIA_ROOT}))
+                        (r'^media/(?P<path>.*)$',
+                         'django.views.static.serve',
+                         {'document_root': settings.MEDIA_ROOT}))
