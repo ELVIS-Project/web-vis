@@ -1,2 +1,5 @@
-django >= 1.5.0, < 1.6
-django-jsonview>=0.3.0, < 0.4
+django >=1.5, <1.6
+django-jsonview >=0.3, <0.4
+django-crispy-forms >=1.4, <1.5
+simplejson >=3.4, <3.5
+vis-framework >= 1.0, <2.0
