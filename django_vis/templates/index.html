@@ -116,7 +116,7 @@
                     });
                 }
             });
-            $("#wizard").on('finished', function() {
+            $("#wizard").on('finished', function() { // this is the "visualize" button
                 $.ajax({
                     method: 'get',
                     url: '/api/experiment',
@@ -137,6 +137,8 @@
                             w=window.open('/output/table/');
                         } else if (data['type']=='graph') {
                             window.open('/output/graph/');
+                        } else if (data['type']=='lilypond') {
+                            window.open(data['score_location']);
                         }
                     },
                 });
@@ -217,7 +219,7 @@
                         form.find("#part-names-div").append(input);
                         form.find("#part-names-div").append(checkbox);
                     });
-                    form.find("#part-comb-div :input").val(piece.partCombinations());
+//                     form.find("#part-comb-div :input").val(piece.partCombinations());
                     form.find("#repeat-ident-div :checkbox").prop("checked", piece.repeatIdentical());
                     form.show().children().show();
                 } else {
@@ -667,6 +669,12 @@
                                     <label>
                                         <input type="radio" name="outputRadio" value="graph">
                                         Bar graph
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="outputRadio" value="lilypond">
+                                        Annotated Score
                                     </label>
                                 </div>
                                 <div class="form-group">
