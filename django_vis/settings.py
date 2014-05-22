@@ -26,11 +26,15 @@
 
 # Django settings for django_vis project.
 import os
+import vis  # used to know the VIS Framework's version
 
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+
+CWA_VERSION = '0.99.0'
+VIS_VERSION = str(vis.__version__)
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
