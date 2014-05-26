@@ -117,10 +117,6 @@ def output_table(request):
 def output_graph(request, filename=None):
     filename = request.session.session_key + '.png'
     return render_to_response('graph.html', context_instance=RequestContext(request, {'filename': filename}))
-    
-def output_score(request, filename=None):
-    filename = request.session.session_key + '.pdf'
-    return render_to_response('graph.html', context_instance=RequestContext(request, {'filename': filename}))
 
 @decorators.json_view
 def upload(request):
