@@ -67,10 +67,15 @@ def save_results(user_id, pathname, result_type):
     location = ResultLocation()
     location.user_id = user_id
     location.save()
-    location.pathname = pathname
-    location.save()
     location.result_type = result_type
     location.save()
+    if 'table' == result_type:
+        location.pathname = pathname
+        location.save()
+    else:  # 'graph' == result_type
+        splitted = pathname.split('/')
+        location.pathname = '%s%s/%s' % (settings.MEDIA_URL, splitted[-2], splitted[-1])
+        location.save()
 
 @decorators.json_view
 def run_experiment(request):
@@ -136,7 +141,7 @@ def run_experiment(request):
         # prepare the URLs we'll return
         rendered_paths = []
         for each in paths:
-            rendered_paths.append('/%s/%s/%s.pdf' % (settings.MEDIA_ROOT, each.split('/')[-2], each.split('/')[-1][:-3]))
+            rendered_paths.append('%s%s/%s.pdf' % (settings.MEDIA_URL, each.split('/')[-2], each.split('/')[-1][:-3]))
     else:
         # no experiment was run
         pass  # TODO: return something not-200
@@ -150,10 +155,7 @@ def output_table(request):
     
 def output_graph(request):
     location = ResultLocation.objects.filter(user_id=request.session.session_key, result_type='graph')
-    #table = open(location[0].pathname).read()
-    #filename = request.session.session_key + '.png'
-    splitted = location[0].pathname.split('/')
-    filename = '%s%s/%s' % (settings.MEDIA_URL, splitted[-2], splitted[-1])
+    filename = location[0].pathname
     return render_to_response('graph.html', context_instance=RequestContext(request, {'filename': filename}))
 
 @decorators.json_view
