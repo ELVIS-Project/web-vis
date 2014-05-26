@@ -26,6 +26,7 @@
 
 import traceback
 import os
+import time
 import simplejson as json
 from django.views import generic
 from django.conf import settings
@@ -88,26 +89,41 @@ def run_experiment(request):
     else:
         wf.settings(0, 'n', n)
         wf.run('interval n-grams')
-    # produce output
-    filename = request.session.session_key
-    if output == 'table':
-        filename = filename + '.html'
-        wf.export('HTML', "%s%s" % (settings.MEDIA_ROOT, filename), top_x=topx, threshold=threshold)
-    elif output == 'graph':
-        wf.output('R histogram', "%s%s" % (settings.MEDIA_ROOT, filename), top_x=topx, threshold=threshold)
-        filename = filename + '.png'
-    elif output == 'lilypond':
-        wf.output('LilyPond', "%s%s" % (settings.MEDIA_ROOT, filename), top_x=topx, threshold=threshold)
 
-        #fsock = open(settings.MEDIA_ROOT + filename + '.pdf', 'r')
-        zell = {'mimetype': 'application/pdf',
-                'Content-Disposition': 'attachment; filename=%s%s.pdf' % (settings.MEDIA_URL, filename),
-                'score_location': '%s%s.pdf' % (settings.MEDIA_URL, filename),
-                'type': 'lilypond'}
-        return zell, 200
-    else:
-        pass
-    return {'type': output}, 200
+    # Produce Output
+    # filename should be time-based, so users see less of a mess
+    # TODO: this should really use the 'tempfile' module
+    # TODO: I should also try to handle errors
+    directory = os.path.join(settings.MEDIA_ROOT, request.session.session_key)
+    if not os.path.exists(directory):
+        os.mkdir(directory)
+    elif not os.path.isdir(directory):
+        os.remove(directory)
+        os.mkdir(directory)
+
+    filename = str(time.time()).replace('.', '')
+    filename = os.path.join(directory, filename)
+    print('!!!!! ' + filename)  # DEBUG
+
+    rendered_paths = None
+
+    if output == 'table':
+        rendered_paths = wf.export('HTML', '%s.html' % filename, top_x=topx, threshold=threshold)  # TODO: fix
+    elif output == 'graph':
+        rendered_paths = wf.output('R histogram', '%s.png' % filename, top_x=topx, threshold=threshold)  # TODO: fix
+    elif output == 'lilypond':
+        paths = wf.output('LilyPond', filename, top_x=topx, threshold=threshold)
+
+        # prepare the URLs we'll return
+        rendered_paths = []
+        for each in paths:
+            rendered_paths.append('/media/%s/%s.pdf' % (each.split('/')[-2], each.split('/')[-1][:-3]))
+
+    if rendered_paths is None:
+        # no experiment was run
+        pass  # TODO: return something not-200
+
+    return {'type': output, 'rendered_paths': rendered_paths}, 200
             
 def output_table(request):
     filename = request.session.session_key + '.html'

@@ -138,7 +138,9 @@
                         } else if (data['type']=='graph') {
                             window.open('/output/graph/');
                         } else if (data['type']=='lilypond') {
-                            window.open(data['score_location']);
+                            for (var i = 0; i < data['rendered_paths'].length; i++) {
+                                window.open(data['rendered_paths'][i]);
+                            }
                         }
                     },
                 });
