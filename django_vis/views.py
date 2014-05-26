@@ -36,7 +36,7 @@ from jsonview import decorators
 import settings
 from vis.workflow import WorkflowManager
 
-from django_vis.models import Piece
+from django_vis.models import Piece, ResultLocation
 
 @decorators.json_view
 def import_files(request):
@@ -53,7 +53,25 @@ def import_files(request):
          "Repeat Identical": False}
         for i in xrange(len(wf))
     ], 200
-    
+
+def save_results(user_id, pathname, result_type):
+    """
+    Given the user_id (session ID), pathname to a result, and the type of the result, save the
+    result in the database. First, we delete all previous results of the same type for this user.
+    """
+    # delete previous table ResultLocation instances
+    old_results = ResultLocation.objects.filter(user_id=user_id, result_type=result_type)
+    for each_result in old_results:
+        each_result.delete()
+    # make a new table ResultLocation
+    location = ResultLocation()
+    location.user_id = user_id
+    location.save()
+    location.pathname = pathname
+    location.save()
+    location.result_type = result_type
+    location.save()
+
 @decorators.json_view
 def run_experiment(request):
     wf = request.session['wf']
@@ -103,35 +121,39 @@ def run_experiment(request):
 
     filename = str(time.time()).replace('.', '')
     filename = os.path.join(directory, filename)
-    print('!!!!! ' + filename)  # DEBUG
 
     rendered_paths = None
 
     if output == 'table':
-        rendered_paths = wf.export('HTML', '%s.html' % filename, top_x=topx, threshold=threshold)  # TODO: fix
+        post = wf.export('HTML', '%s.html' % filename, top_x=topx, threshold=threshold)
+        save_results(request.session.session_key, post, output)
     elif output == 'graph':
-        rendered_paths = wf.output('R histogram', '%s.png' % filename, top_x=topx, threshold=threshold)  # TODO: fix
+        post = wf.output('R histogram', '%s' % filename, top_x=topx, threshold=threshold)
+        save_results(request.session.session_key, post, output)
     elif output == 'lilypond':
         paths = wf.output('LilyPond', filename, top_x=topx, threshold=threshold)
 
         # prepare the URLs we'll return
         rendered_paths = []
         for each in paths:
-            rendered_paths.append('/media/%s/%s.pdf' % (each.split('/')[-2], each.split('/')[-1][:-3]))
-
-    if rendered_paths is None:
+            rendered_paths.append('/%s/%s/%s.pdf' % (settings.MEDIA_ROOT, each.split('/')[-2], each.split('/')[-1][:-3]))
+    else:
         # no experiment was run
         pass  # TODO: return something not-200
 
     return {'type': output, 'rendered_paths': rendered_paths}, 200
             
 def output_table(request):
-    filename = request.session.session_key + '.html'
-    table = open("%s%s" % (settings.MEDIA_ROOT, filename)).read()
+    location = ResultLocation.objects.filter(user_id=request.session.session_key, result_type='table')
+    table = open(location[0].pathname).read()
     return render_to_response('table.html', {'table': table})
     
-def output_graph(request, filename=None):
-    filename = request.session.session_key + '.png'
+def output_graph(request):
+    location = ResultLocation.objects.filter(user_id=request.session.session_key, result_type='graph')
+    #table = open(location[0].pathname).read()
+    #filename = request.session.session_key + '.png'
+    splitted = location[0].pathname.split('/')
+    filename = '%s%s/%s' % (settings.MEDIA_URL, splitted[-2], splitted[-1])
     return render_to_response('graph.html', context_instance=RequestContext(request, {'filename': filename}))
 
 @decorators.json_view

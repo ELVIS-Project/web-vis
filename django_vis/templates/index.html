@@ -133,12 +133,18 @@
                     dataType: "json",
                     async: false, // needed for chrome to open in new tab, for some reason
                     success: function(data) {
-                        if (data['type']=='table') {
-                            w=window.open('/output/table/');
-                        } else if (data['type']=='graph') {
+                        if (data['type'] == 'table')
+                        {
+                            window.open('/output/table/');
+                        }
+                        else if (data['type'] == 'graph')
+                        {
                             window.open('/output/graph/');
-                        } else if (data['type']=='lilypond') {
-                            for (var i = 0; i < data['rendered_paths'].length; i++) {
+                        }
+                        else if (data['type'] == 'lilypond')
+                        {
+                            for (var i = 0; i < data['rendered_paths'].length; i++)
+                            {
                                 window.open(data['rendered_paths'][i]);
                             }
                         }
