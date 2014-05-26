@@ -33,7 +33,7 @@ PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-CWA_VERSION = '0.99.0'
+CWA_VERSION = '0.99.1'
 VIS_VERSION = str(vis.__version__)
 
 ADMINS = (
