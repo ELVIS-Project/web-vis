@@ -269,52 +269,67 @@ $ cd /usr/local/vis_counterpoint</programlisting>
             </section>
 
             <section>
-                <title>Configure the Web App because We Said So</title>
+                <title>Configure the Web App</title>
                 <para>
-*** NB: in settings.py, I changed the follwing lines (which is totally not ideal)
+                    For final deployment, adjust the following settings.
+                </para>
+                <procedure>
+                    <step>
+                        <para>In <filename>settings.py</filename>.</para>
 <programlisting>
 'NAME': '/usr/local/vis_counterpoint/runtime/database.sqlite3',
 ...
 MEDIA_ROOT = '/usr/local/vis_counterpoint/runtime/outputs/'
 ...
 MEDIA_URL = 'http://counterpoint.elvisproject.ca/media/'
-</programlisting>
-*** NB: in wsgi.py, I added things to the sys.path (which is totally not ideal)
+...
+ALLOWED_HOSTS = ['counterpoint.elvisproject.ca']
+...
+DEBUG = False
+...
+SECRET_KEY = ''  # 40 pseudo-random characters
+</programlisting></step>
+<step><para>In <filename>wsgi.py</filename>.</para>
 <programlisting>
 import sys
 sys.path.insert(0, '/usr/local/vis_counterpoint/web-vis')
 sys.path.insert(1, '/usr/local/vis_counterpoint')
-</programlisting>
-- edit vis/workflow.py, changing
-<programlisting>
-_R_bar_chart_path = u'scripts/R_bar_chart.r'
-... to...
-_R_bar_chart_path = u'/usr/local/vis_counterpoint/vis/scripts/R_bar_chart.r'
-</programlisting>
-** remove unused apache modules?
-                </para>
+</programlisting></step>
+                </procedure>
             </section>
 
             <section>
                 <title>Other Things</title>
-                <para>
-                    - TODO: properly set the timezone (somehow it's an hour behind)
-                    - make sure <filename>/tmp/music21</filename> is owned by www-data:www-data with read/write 744 permissions
-                        - TODO: figure out how to change the "scratch files" directory without using the <filename>~/.music21rc</filename> file
-                    - make the VIS temp directories:
-                        <command>$ sudo mkdir /usr/local/vis_counterpoint</command>
-                        <command>$ sudo mkdir /usr/local/vis_counterpoint/outputs</command>
-                        <command>$ sudo chown -R www-data:www-data /usr/local/vis_counterpoint</command>
-                    - have to run "python manage.py syncdb" to create the sqlite3 database file
-                        <command>$ sudo passwd www-data</command> (to something easy)
-                        <command>$ su www-data</command>
-                        <command>$ python manage.py syncdb</command> (choose "no" when asked about "superusers")
-                        <command>$ exit</command>
-                        <command>$ sudo service apache2 restart</command>
-                        <command>$ sudo passwd www-data</command> (to something incredibly difficult)
-                        *** TODO: this is such a hack!
-                        *** TODO: set the FQDN
-                </para>
+                <procedure>
+                    <step>
+                        <para>Set the timezone.</para>
+                    </step>
+                    <step>
+                        <para>Make sure <filename>/tmp/music21</filename> is owned by www-data:www-data with read/write 744 permissions.</para>
+                    </step>
+                    <step>
+                        <para>TODO: figure out how to change the "scratch files" directory without using the <filename>~/.music21rc</filename> file.</para>
+                    </step>
+                    <step>
+                        <para>Make the VIS temp directories:</para>
+                        <substeps>
+                            <step><para><command>$ sudo mkdir /usr/local/vis_counterpoint</command></para></step>
+                            <step><para><command>$ sudo mkdir /usr/local/vis_counterpoint/outputs</command></para></step>
+                            <step><para><command>$ sudo chown -R www-data:www-data /usr/local/vis_counterpoint</command></para></step>
+                        </substeps>
+                    </step>
+                    <step>
+                        <para>Use this terribly hacky way to create the sqlite3 database file:</para>
+                        <substeps>
+                            <step><para><command>$ sudo passwd www-data</command> (to something easy)</para></step>
+                            <step><para><command>$ su www-data</command></para></step>
+                            <step><para><command>$ python manage.py syncdb</command> (choose "no" when asked about "superusers")</para></step>
+                            <step><para><command>$ exit</command></para></step>
+                            <step><para><command>$ sudo service apache2 restart</command></para></step>
+                            <step><para><command>$ sudo passwd www-data</command> (to something incredibly difficult)</para></step>
+                        </substeps>
+                    </step>
+                </procedure>
             </section>
         </section>
 
