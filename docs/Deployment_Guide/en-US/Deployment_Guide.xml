@@ -160,9 +160,9 @@ ServerTokens Prod</programlisting>It looks like the Ubuntu-compiled version both
             </section>
 
             <section>
-                <title>Install the Counterpoint Web App</title>
+                <title>Install VIS and the Counterpoint Web App</title>
                 <para>
-                    Complete the following procedure to install the Counterpoint Web app, the VIS Framework, and their dependencies, then run automated tests.
+                    Complete the following procedure to install the VIS Framework and the Counterpoint Web app.
                 </para>
                 <procedure>
                     <step>
@@ -172,7 +172,23 @@ ServerTokens Prod</programlisting>It looks like the Ubuntu-compiled version both
                     </step>
                     <step>
                         <para>
-                            Install <application>pip</application> and other software required to build <application>VIS</application>.<programlisting>$ sudo apt-get install python-pip python-dev g++</programlisting>
+                            Install <application>pip</application> and other software required to build the VIS Framework dependencies.<programlisting>$ sudo apt-get install python-pip python-dev g++</programlisting>
+                        </para>
+                    </step>
+                    <step>
+                        <para>
+                            Use pip to install the latest version of the VIS Framework and its dependencies.<programlisting>sudo pip install vis-framework</programlisting>
+                        </para>
+                    </step>
+                    <step>
+                        <para>
+                            Optional. Install the VIS Framework's optional requirements. Note that, for the Counterpoint Web App, the optional components should not be considered optional since they greatly affect computational speed.<programlisting>$ sudo pip install numexpr bottleneck</programlisting>Ensure you read the output from <application>pip</application>, since an error may leave some packages uninstalled.
+                        </para>
+                        <para>
+                            If you wish to export "Excel"-format files from the Web App, you must install openpyxl:<programlisting>$ sudo pip install openpyxl</programlisting>
+                        </para>
+                        <para>
+                            If you wish to export HDF5-format files from the Web App, you must install PyTables:<programlisting>$ sudo pip install cython tables</programlisting>You may remove Cython after you install PyTables, since Cython is a build requirement for PyTables, but not a runtime requirement.
                         </para>
                     </step>
                     <step>
@@ -183,42 +199,12 @@ $ cd /usr/local/vis_counterpoint</programlisting>
                     </step>
                     <step>
                         <para>
-                            Use <application>git</application> to clone the <application>VIS Framework</application>.<programlisting>$ sudo git clone https://github.com/ELVIS-Project/vis.git</programlisting>
-                        </para>
-                    </step>
-                    <step>
-                        <para>
-                            Optional. Use <application>git</application> to choose the tag of a specific version of the <application>VIS Framework</application>.<programlisting>$ sudo git checkout tags/<replaceable>tag_name</replaceable></programlisting>
-                        </para>
-                    </step>
-                    <step>
-                        <para>
-                            Install the <application>VIS Framework</application> requirements. Note this may take more than fifteen minutes.<programlisting>$ sudo pip install -r vis/requirements.txt</programlisting>
-                        </para>
-                    </step>
-                    <step>
-                        <para>
-                            Optional. Install the <application>VIS Framework</application>'s optional requirements. Note that, for the Counterpoint Web App, the optional components should not be considered optional since they greatly affect computational speed.<programlisting>$ sudo pip install -r vis/optional_requirements.txt</programlisting>Ensure you read the output from <application>pip</application>, since an error may leave some packages uninstalled.
-                        </para>
-                    </step>
-                    <step>
-                        <para>
-                            Run the <application>VIS Framework</application>'s automated tests.<programlisting>$ cd vis &amp;&amp; python vis/run_tests.py &amp;&amp; cd ..</programlisting>
-                        </para>
-                    </step>
-                    <step>
-                        <para>
                             Ensure you are in the <filename>/usr/local/vis_counterpoint</filename> directory, then clone the "web-vis" repository.<programlisting>$ sudo git clone https://github.com/ELVIS-Project/web-vis.git</programlisting>You may wish to checkout the tag of a specific release.
                         </para>
                     </step>
                     <step>
                         <para>
                             Install the "web-vis" requirements.<programlisting>$ sudo pip install -r web-vis/requirements.txt</programlisting>
-                        </para>
-                    </step>
-                    <step>
-                        <para>
-                            Run the "web-vis" automated tests.<programlisting>$ ????????????????????????</programlisting>Oh, we don't have any.
                         </para>
                     </step>
                 </procedure>
