@@ -229,17 +229,27 @@ $ cd /usr/local/vis_counterpoint</programlisting>
 		<title>Configure the Web App</title>
             <section>
                 <title>Configure the Counterpoint Web App with Apache</title>
-                <para>
-                    - install mod_wsgi for apache2:
-                        <command>$ sudo apt-get install libapache2-mod-wsgi</command>
-                    - the LoadModule part is automatically added, and apache2 is restarted
-                    - rewrite the VirtualHost block in <filename>/etc/apache2/sites-available/default</filename>:
-                        - WSGIScriptAlias first_thing second_thing
-                            *** the first thing is the URL path; use / for the root, or something without trailing slash
-                            *** the second thing is obvs the django_vis thing (must be full pathname, not python module)
-                        - add Directory to allow apache to access the vis source code
-                        - because I'm using the URL root, I have to add "Alias" directives for favicon, robots, and humans
-                        - you get something like this...
+                <procedure>
+                    <step>
+                        <para>Install mod_wsgi for apache2: <command>$ sudo apt-get install libapache2-mod-wsgi</command></para>
+                        <para>The LoadModule part is automatically added, and apache2 is restarted.</para>
+                    </step>
+                    <step>
+                        <para>Rewrite the VirtualHost block in <filename>/etc/apache2/sites-available/default</filename>:</para>
+                        <substeps>
+                            <step>
+                                <para>WSGIScriptAlias first_thing second_thing.</para>
+                                <para>The first_thing is the URL path; use <filename>/</filename> for the root. This must not end with a trailing slash.</para>
+                                <para>The second_thing is the path to the django_vis directory. It must be the full pathname, not the python module.</para>
+                            </step>
+                            <step>
+                                <para>Add Directory to allow apache to access the vis source code.</para>
+                            </step>
+                            <step>
+                                <para>Because I'm using the URL root, I have to add "Alias" directives for favicon, robots, and humans.</para>
+                            </step>
+                            <step>
+                                <para>You get something like this:</para>
 <programlisting><![CDATA[
 <VirtualHost *:80>
     ServerName counterpoint.elvisproject.ca
@@ -262,10 +272,11 @@ $ cd /usr/local/vis_counterpoint</programlisting>
     ErrorLog ${APACHE_LOG_DIR}/vis_error.log
     CustomLog ${APACHE_LOG_DIR}/vis_access.log common
 </VirtualHost>
-]]></programlisting>
-                    - restart apache2:
-                        <command>$ sudo service apache2 restart</command>
-                </para>
+]]></programlisting></step></substeps></step>
+                    <step>
+                        <para>Restart apache2: <command>$ sudo service apache2 restart</command></para>
+                    </step>
+                </procedure>
             </section>
 
             <section>
