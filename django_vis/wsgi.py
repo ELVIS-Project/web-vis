@@ -5,9 +5,9 @@
 # Program Description:    Web-based User Interface for vis
 #
 # Filename:               django-vis/wsgi.py
-# Purpose:                ????
+# Purpose:                Set up the WSGI application.
 #
-# Copyright (C) 2013 Jamie Klassen
+# Copyright (C) 2013 to 2014 Jamie Klassen and Christopher Antila
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -39,6 +39,18 @@ framework.
 
 """
 import os
+
+# Uncomment these lines if you deploy the app with virtualenv.
+#activate_this = '/usr/local/vis_counterpoint/cwa_virtualenv/bin/activate_this.py'
+#execfile(activate_this, dict(__file__=activate_this))
+
+# Uncomment these lines if you deploy the app (i.e., if you are not developing or testing locally).
+#import imp
+#try:
+    #imp.find_module('django_vis')
+#except ImportError:
+    #import sys
+    #sys.path.insert(0, '/usr/local/vis_counterpoint/web-vis')
 
 # We defer to a DJANGO_SETTINGS_MODULE already in the environment. This breaks
 # if running multiple sites in the same mod_wsgi process. To fix this, use
