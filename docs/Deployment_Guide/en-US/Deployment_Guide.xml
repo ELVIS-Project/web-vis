@@ -159,10 +159,99 @@ ServerTokens Prod</programlisting>It looks like the Ubuntu-compiled version both
                 </procedure>
             </section>
 
-            <section id="sect-install_cwa">
-                <title>Install VIS and the Counterpoint Web App</title>
+            <section id="sect-install_cwa_virtualenv">
+                <title>Install VIS and the Counterpoint Web App (Virtualenv)</title>
                 <para>
-                    Complete the following procedure to install the VIS Framework and the Counterpoint Web app.
+                    Complete the following procedure to install the VIS Framework and the Counterpoint Web App using the <package>virtualenv</package> package. We recommend this installation method, but you may also use distribution packages (refer to <xref linkend="sect-install_cwa_distro" /> for more information).
+                </para>
+                <procedure>
+                    <step>
+                        <para>
+                            Install <application>git</application>.<programlisting>$ sudo apt-get install git</programlisting>
+                        </para>
+                    </step>
+                    <step>
+                        <para>
+                            Install <package>virtualenv</package> and other software required to build the VIS Framework dependencies.<programlisting>$ sudo apt-get install python-virtualenv python-dev g++</programlisting>
+                        </para>
+                    </step>
+                    <step>
+                        <para>
+                            Make the installation directory. We do not recommend you use <filename>/var/www</filename>, which would allow access to the source code.<programlisting>$ sudo mkdir /usr/local/vis_counterpoint
+$ cd /usr/local/vis_counterpoint</programlisting>
+                        </para>
+                    </step>
+                    <step>
+                        <para>
+                            Initialize then activate the CWA's <package>virtualenv</package> environment.
+                            <programlisting>$ sudo virtualenv cwa_virtualenv
+$ sudo -i
+$ source cwa_virtualenv/bin/activate</programlisting>
+                        </para>
+                        <note>
+                            <title>About Using sudo</title>
+                            <para>
+                                Because <package>virtualenv</package> works by modifying environment variables, you must run all <package>virtualenv</package>-related commands in an interactive shell. If you <command>source</command> the virtual environment as a regular user, then use <application>pip</application> with <command>sudo</command>, <application>pip</application> will install all packages to the system <filename class="directory">site-packages</filename> directory.
+                            </para>
+                        </note>
+                    </step>
+                    <step>
+                        <para>
+                            Update <application>pip</application>.<programlisting>$ pip install -U pip</programlisting>
+                        </para>
+                    </step>
+
+
+                    <step>
+                        <para>
+                            Use <application>pip</application> to install the latest version of the VIS Framework and its dependencies.
+                            <programlisting>pip install vis-framework --allow-external music21 --allow-unverified music21</programlisting>
+                        </para>
+                        <note>
+                            <title>About the pip Flags</title>
+                            <para>
+                                Current versions of <application>pip</application> are reluctant to install packages that are not hosted on the PyPI (Python Package Index) or that are unsigned. The CWA currently requires <package>music21</package> version 1.7, which is not hosted on the PyPI, and has no signature on the PyPI.
+                            </para>
+                            <para>
+                                As of version 1.8, <package>music21</package> does have an MD5 signature on the PyPI, but it is hosted on another website for technical reasons.
+                            </para>
+                        </note>
+                    </step>
+                    <step>
+                        <para>
+                            Optional. Install the VIS Framework's optional requirements. Note that, for the Counterpoint Web App, the optional components should not be considered optional since they greatly affect computational speed.
+                            <programlisting>$ pip install numexpr bottleneck</programlisting>
+                            Ensure you read the output from <application>pip</application>, since an error may leave some packages uninstalled.
+                        </para>
+                        <para>
+                            If you wish to export "Excel"-format files from the Web App, you must install openpyxl.
+                            <programlisting>$ pip install openpyxl</programlisting>
+                        </para>
+                        <para>
+                            If you wish to export HDF5-format files from the Web App, you must install PyTables.
+                            <programlisting>$ pip install cython tables</programlisting>
+                            You may remove Cython after you install PyTables, since Cython is a build requirement for PyTables, but not a runtime requirement.
+                        </para>
+                    </step>
+                    <step>
+                        <para>
+                            Ensure you are still in the <filename class="directory">/usr/local/vis_counterpoint</filename> directory, then clone the "web-vis" repository.
+                            <programlisting>$ git clone https://github.com/ELVIS-Project/web-vis.git</programlisting>
+                            You may wish to checkout the tag of a specific release.
+                        </para>
+                    </step>
+                    <step>
+                        <para>
+                            Install the "web-vis" requirements.<programlisting>$ pip install -r web-vis/requirements.txt</programlisting>
+                        </para>
+                    </step>
+                </procedure>
+            </section>
+
+            <section id="sect-install_cwa_distro">
+                <title>Install VIS and the Counterpoint Web App (Distribution Packages)</title>
+                <para>
+                    Complete the following procedure to install the VIS Framework and the Counterpoint Web App using distribution-provided packages. If possible, we suggest you use the <package>virtualenv</package> to install the Counterpoint Web App in a way that does not interfere with operating system packages (refer to <xref linkend="sect-install_cwa_virtualenv" /> for more information).
                 </para>
                 <procedure>
                     <step>
@@ -286,12 +375,24 @@ DEBUG = False
 ...
 SECRET_KEY = ''  # 40 pseudo-random characters
 </programlisting></step>
-<step><para>In <filename>wsgi.py</filename>.</para>
+<step><para>Uncomment the following lines in <filename>wsgi.py</filename>.</para>
 <programlisting>
-import sys
-sys.path.insert(0, '/usr/local/vis_counterpoint/web-vis')
-sys.path.insert(1, '/usr/local/vis_counterpoint')
+import imp
+try:
+    imp.find_module('django_vis')
+except ImportError:
+    import sys
+    sys.path.insert(0, '/usr/local/vis_counterpoint/web-vis')
 </programlisting></step>
+                    <step>
+                        <para>
+                            If you installed VIS and the CWA with <package>virtualenv</package>, uncomment the following lines from <filename>wsgi.py</filename>.
+<programlisting>
+activate_this = '/usr/local/vis_counterpoint/cwa_virtualenv/bin/activate_this.py'
+execfile(activate_this, dict(__file__=activate_this))
+</programlisting>
+                        </para>
+                    </step>
                 </procedure>
             </section>
 
