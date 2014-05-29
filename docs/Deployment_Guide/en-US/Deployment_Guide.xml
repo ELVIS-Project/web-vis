@@ -15,7 +15,7 @@
             Our deployment server is Ubuntu 12.04 virtual machine with lots of memory and some CPU space. When asked to install additional (server) packages, I didn't select any, because we'd probably have installed more software than needed, which is an unnecessary burden for many reasons.
         </para>
 
-        <section>
+        <section id="sect-update">
             <title>Minor Customization and Install Updates</title>
             <procedure>
                 <para>
@@ -44,7 +44,7 @@
             </procedure>
         </section>
 
-        <section>
+        <section id="sect-firewall">
             <title>Enable the Firewall and AppArmor</title>
             <procedure>
                 <para>
@@ -64,7 +64,7 @@
             </procedure>
         </section>
 
-        <section>
+        <section id="sect-tmpfs">
             <title>Add tmpfs for Runtime Files</title>
             <para>
                 I added an in-memory temporary directory for the Web app's temporary files. This will give us mildly improved speed and security. The directory will not mount properly until after you install the Web app. Change the value of the "size" mount option according to how much memory your server has. In <filename>/etc/fstab</filename>, add:
@@ -72,7 +72,7 @@
             </para>
         </section>
 
-        <section>
+        <section id="sect-network">
             <title>Configure the Network</title>
             <para>
                 Finally, just a note about network configuration, since it was unexpectedly retro for me. You need to edit <filename>/etc/network/interfaces</filename> so it looks something like this:
@@ -87,7 +87,7 @@
 
 	<section id="sect-install_software">
         <title>Install the Web App and Dependencies</title>
-            <section>
+            <section id="sect-install_R">
                 <title>Install R</title>
                 <para>
                     Since the version of <application>R</application> included with Ubuntu 13.04 is too old, we recommend you install <application>R</application> from <firstterm><acronym>CRAN</acronym></firstterm> (the Comprehensive <application>R</application> Archive Network&mdash;refer to <ulink url="http://cran.r-project.org">cran.r-project.org</ulink> for more information).
@@ -124,7 +124,7 @@ $ sudo apt-get install r-base</programlisting>
                 </procedure>
             </section>
 
-            <section>
+            <section id="sect-install_httpd">
                 <title>Install and Configure the Web Server</title>
                 <para>
                     We recommend you use the Apache HTTPD Web server, because we do. Refer to the "HTTPD" chapter of the <citetitle>Ubuntu Server Guide</citetitle> at <ulink url="https://help.ubuntu.com/12.04/serverguide/httpd.html">help.ubuntu.com/12.04/serverguide/httpd.html</ulink> for more information about the Apache Web server.
@@ -159,7 +159,7 @@ ServerTokens Prod</programlisting>It looks like the Ubuntu-compiled version both
                 </procedure>
             </section>
 
-            <section>
+            <section id="sect-install_cwa">
                 <title>Install VIS and the Counterpoint Web App</title>
                 <para>
                     Complete the following procedure to install the VIS Framework and the Counterpoint Web app.
@@ -213,7 +213,7 @@ $ cd /usr/local/vis_counterpoint</programlisting>
 
 	<section id="sect-configure_software">
 		<title>Configure the Web App</title>
-            <section>
+            <section id="sect-configure_httpd">
                 <title>Configure the Counterpoint Web App with Apache</title>
                 <procedure>
                     <step>
@@ -265,7 +265,7 @@ $ cd /usr/local/vis_counterpoint</programlisting>
                 </procedure>
             </section>
 
-            <section>
+            <section id="sect-configure_cwa">
                 <title>Configure the Web App</title>
                 <para>
                     For final deployment, adjust the following settings.
@@ -295,7 +295,7 @@ sys.path.insert(1, '/usr/local/vis_counterpoint')
                 </procedure>
             </section>
 
-            <section>
+            <section id="sect-configure_other">
                 <title>Other Things</title>
                 <procedure>
                     <step>
