@@ -116,7 +116,7 @@
                     });
                 }
             });
-            $("#wizard").on('finished', function() {
+            $("#wizard").on('finished', function() { // this is the "visualize" button
                 $.ajax({
                     method: 'get',
                     url: '/api/experiment',
@@ -133,10 +133,20 @@
                     dataType: "json",
                     async: false, // needed for chrome to open in new tab, for some reason
                     success: function(data) {
-                        if (data['type']=='table') {
-                            w=window.open('/output/table/');
-                        } else if (data['type']=='graph') {
+                        if (data['type'] == 'table')
+                        {
+                            window.open('/output/table/');
+                        }
+                        else if (data['type'] == 'graph')
+                        {
                             window.open('/output/graph/');
+                        }
+                        else if (data['type'] == 'lilypond')
+                        {
+                            for (var i = 0; i < data['rendered_paths'].length; i++)
+                            {
+                                window.open(data['rendered_paths'][i]);
+                            }
                         }
                     },
                 });
@@ -217,7 +227,7 @@
                         form.find("#part-names-div").append(input);
                         form.find("#part-names-div").append(checkbox);
                     });
-                    form.find("#part-comb-div :input").val(piece.partCombinations());
+//                     form.find("#part-comb-div :input").val(piece.partCombinations());
                     form.find("#repeat-ident-div :checkbox").prop("checked", piece.repeatIdentical());
                     form.show().children().show();
                 } else {
@@ -393,14 +403,14 @@
           <a class="brand"><img src="{{ STATIC_URL }}img/v.png"></a>
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li class="">
-                <a href="http://elvisproject.ca">ELVIS project</a>
+              <li>
+                <a href="http://elvisproject.ca/">ELVIS Project</a>
               </li>
-              <li class="">
-                <a href="#">About</a>
+              <li>
+                <a href="https://github.com/ELVIS-Project/web-vis/">Counterpoint Web App {{ settings.CWA_VERSION }}</a>
               </li>
-              <li class="">
-                <a href="#">Help</a>
+              <li>
+                <a href="https://github.com/ELVIS-Project/vis/">VIS Framework {{ settings.VIS_VERSION }}</a>
               </li>
             </ul>
           </div>
@@ -667,6 +677,12 @@
                                     <label>
                                         <input type="radio" name="outputRadio" value="graph">
                                         Bar graph
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="outputRadio" value="lilypond">
+                                        Annotated Score
                                     </label>
                                 </div>
                                 <div class="form-group">

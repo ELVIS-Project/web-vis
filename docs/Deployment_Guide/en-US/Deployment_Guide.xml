@@ -15,7 +15,7 @@
             Our deployment server is Ubuntu 12.04 virtual machine with lots of memory and some CPU space. When asked to install additional (server) packages, I didn't select any, because we'd probably have installed more software than needed, which is an unnecessary burden for many reasons.
         </para>
 
-        <section>
+        <section id="sect-update">
             <title>Minor Customization and Install Updates</title>
             <procedure>
                 <para>
@@ -44,7 +44,7 @@
             </procedure>
         </section>
 
-        <section>
+        <section id="sect-firewall">
             <title>Enable the Firewall and AppArmor</title>
             <procedure>
                 <para>
@@ -64,7 +64,7 @@
             </procedure>
         </section>
 
-        <section>
+        <section id="sect-tmpfs">
             <title>Add tmpfs for Runtime Files</title>
             <para>
                 I added an in-memory temporary directory for the Web app's temporary files. This will give us mildly improved speed and security. The directory will not mount properly until after you install the Web app. Change the value of the "size" mount option according to how much memory your server has. In <filename>/etc/fstab</filename>, add:
@@ -72,7 +72,7 @@
             </para>
         </section>
 
-        <section>
+        <section id="sect-network">
             <title>Configure the Network</title>
             <para>
                 Finally, just a note about network configuration, since it was unexpectedly retro for me. You need to edit <filename>/etc/network/interfaces</filename> so it looks something like this:
@@ -87,7 +87,7 @@
 
 	<section id="sect-install_software">
         <title>Install the Web App and Dependencies</title>
-            <section>
+            <section id="sect-install_R">
                 <title>Install R</title>
                 <para>
                     Since the version of <application>R</application> included with Ubuntu 13.04 is too old, we recommend you install <application>R</application> from <firstterm><acronym>CRAN</acronym></firstterm> (the Comprehensive <application>R</application> Archive Network&mdash;refer to <ulink url="http://cran.r-project.org">cran.r-project.org</ulink> for more information).
@@ -124,7 +124,7 @@ $ sudo apt-get install r-base</programlisting>
                 </procedure>
             </section>
 
-            <section>
+            <section id="sect-install_httpd">
                 <title>Install and Configure the Web Server</title>
                 <para>
                     We recommend you use the Apache HTTPD Web server, because we do. Refer to the "HTTPD" chapter of the <citetitle>Ubuntu Server Guide</citetitle> at <ulink url="https://help.ubuntu.com/12.04/serverguide/httpd.html">help.ubuntu.com/12.04/serverguide/httpd.html</ulink> for more information about the Apache Web server.
@@ -159,10 +159,10 @@ ServerTokens Prod</programlisting>It looks like the Ubuntu-compiled version both
                 </procedure>
             </section>
 
-            <section>
-                <title>Install the Counterpoint Web App</title>
+            <section id="sect-install_cwa_virtualenv">
+                <title>Install VIS and the Counterpoint Web App (Virtualenv)</title>
                 <para>
-                    Complete the following procedure to install the Counterpoint Web app, the VIS Framework, and their dependencies, then run automated tests.
+                    Complete the following procedure to install the VIS Framework and the Counterpoint Web App using the <package>virtualenv</package> package. We recommend this installation method, but you may also use distribution packages (refer to <xref linkend="sect-install_cwa_distro" /> for more information).
                 </para>
                 <procedure>
                     <step>
@@ -172,7 +172,7 @@ ServerTokens Prod</programlisting>It looks like the Ubuntu-compiled version both
                     </step>
                     <step>
                         <para>
-                            Install <application>pip</application> and other software required to build <application>VIS</application>.<programlisting>$ sudo apt-get install python-pip python-dev g++</programlisting>
+                            Install <package>virtualenv</package> and other software required to build the VIS Framework dependencies.<programlisting>$ sudo apt-get install python-virtualenv python-dev g++</programlisting>
                         </para>
                     </step>
                     <step>
@@ -183,27 +183,107 @@ $ cd /usr/local/vis_counterpoint</programlisting>
                     </step>
                     <step>
                         <para>
-                            Use <application>git</application> to clone the <application>VIS Framework</application>.<programlisting>$ sudo git clone https://github.com/ELVIS-Project/vis.git</programlisting>
+                            Initialize then activate the CWA's <package>virtualenv</package> environment.
+                            <programlisting>$ sudo virtualenv cwa_virtualenv
+$ sudo -i
+$ source cwa_virtualenv/bin/activate</programlisting>
+                        </para>
+                        <note>
+                            <title>About Using sudo</title>
+                            <para>
+                                Because <package>virtualenv</package> works by modifying environment variables, you must run all <package>virtualenv</package>-related commands in an interactive shell. If you <command>source</command> the virtual environment as a regular user, then use <application>pip</application> with <command>sudo</command>, <application>pip</application> will install all packages to the system <filename class="directory">site-packages</filename> directory.
+                            </para>
+                        </note>
+                    </step>
+                    <step>
+                        <para>
+                            Update <application>pip</application>.<programlisting>$ pip install -U pip</programlisting>
+                        </para>
+                    </step>
+
+
+                    <step>
+                        <para>
+                            Use <application>pip</application> to install the latest version of the VIS Framework and its dependencies.
+                            <programlisting>pip install vis-framework --allow-external music21 --allow-unverified music21</programlisting>
+                        </para>
+                        <note>
+                            <title>About the pip Flags</title>
+                            <para>
+                                Current versions of <application>pip</application> are reluctant to install packages that are not hosted on the PyPI (Python Package Index) or that are unsigned. The CWA currently requires <package>music21</package> version 1.7, which is not hosted on the PyPI, and has no signature on the PyPI.
+                            </para>
+                            <para>
+                                As of version 1.8, <package>music21</package> does have an MD5 signature on the PyPI, but it is hosted on another website for technical reasons.
+                            </para>
+                        </note>
+                    </step>
+                    <step>
+                        <para>
+                            Optional. Install the VIS Framework's optional requirements. Note that, for the Counterpoint Web App, the optional components should not be considered optional since they greatly affect computational speed.
+                            <programlisting>$ pip install numexpr bottleneck</programlisting>
+                            Ensure you read the output from <application>pip</application>, since an error may leave some packages uninstalled.
+                        </para>
+                        <para>
+                            If you wish to export "Excel"-format files from the Web App, you must install openpyxl.
+                            <programlisting>$ pip install openpyxl</programlisting>
+                        </para>
+                        <para>
+                            If you wish to export HDF5-format files from the Web App, you must install PyTables.
+                            <programlisting>$ pip install cython tables</programlisting>
+                            You may remove Cython after you install PyTables, since Cython is a build requirement for PyTables, but not a runtime requirement.
                         </para>
                     </step>
                     <step>
                         <para>
-                            Optional. Use <application>git</application> to choose the tag of a specific version of the <application>VIS Framework</application>.<programlisting>$ sudo git checkout tags/<replaceable>tag_name</replaceable></programlisting>
+                            Ensure you are still in the <filename class="directory">/usr/local/vis_counterpoint</filename> directory, then clone the "web-vis" repository.
+                            <programlisting>$ git clone https://github.com/ELVIS-Project/web-vis.git</programlisting>
+                            You may wish to checkout the tag of a specific release.
                         </para>
                     </step>
                     <step>
                         <para>
-                            Install the <application>VIS Framework</application> requirements. Note this may take more than fifteen minutes.<programlisting>$ sudo pip install -r vis/requirements.txt</programlisting>
+                            Install the "web-vis" requirements.<programlisting>$ pip install -r web-vis/requirements.txt</programlisting>
+                        </para>
+                    </step>
+                </procedure>
+            </section>
+
+            <section id="sect-install_cwa_distro">
+                <title>Install VIS and the Counterpoint Web App (Distribution Packages)</title>
+                <para>
+                    Complete the following procedure to install the VIS Framework and the Counterpoint Web App using distribution-provided packages. If possible, we suggest you use the <package>virtualenv</package> to install the Counterpoint Web App in a way that does not interfere with operating system packages (refer to <xref linkend="sect-install_cwa_virtualenv" /> for more information).
+                </para>
+                <procedure>
+                    <step>
+                        <para>
+                            Install <application>git</application>.<programlisting>$ sudo apt-get install git</programlisting>
                         </para>
                     </step>
                     <step>
                         <para>
-                            Optional. Install the <application>VIS Framework</application>'s optional requirements. Note that, for the Counterpoint Web App, the optional components should not be considered optional since they greatly affect computational speed.<programlisting>$ sudo pip install -r vis/optional_requirements.txt</programlisting>Ensure you read the output from <application>pip</application>, since an error may leave some packages uninstalled.
+                            Install <application>pip</application> and other software required to build the VIS Framework dependencies.<programlisting>$ sudo apt-get install python-pip python-dev g++</programlisting>
                         </para>
                     </step>
                     <step>
                         <para>
-                            Run the <application>VIS Framework</application>'s automated tests.<programlisting>$ cd vis &amp;&amp; python vis/run_tests.py &amp;&amp; cd ..</programlisting>
+                            Use pip to install the latest version of the VIS Framework and its dependencies.<programlisting>sudo pip install vis-framework</programlisting>
+                        </para>
+                    </step>
+                    <step>
+                        <para>
+                            Optional. Install the VIS Framework's optional requirements. Note that, for the Counterpoint Web App, the optional components should not be considered optional since they greatly affect computational speed.<programlisting>$ sudo pip install numexpr bottleneck</programlisting>Ensure you read the output from <application>pip</application>, since an error may leave some packages uninstalled.
+                        </para>
+                        <para>
+                            If you wish to export "Excel"-format files from the Web App, you must install openpyxl:<programlisting>$ sudo pip install openpyxl</programlisting>
+                        </para>
+                        <para>
+                            If you wish to export HDF5-format files from the Web App, you must install PyTables:<programlisting>$ sudo pip install cython tables</programlisting>You may remove Cython after you install PyTables, since Cython is a build requirement for PyTables, but not a runtime requirement.
+                        </para>
+                    </step>
+                    <step>
+                        <para>
+                            Make the installation directory. We do not recommend you use <filename>/var/www</filename>, which would allow access to the source code.<programlisting>$ sudo mkdir /usr/local/vis_counterpoint
+$ cd /usr/local/vis_counterpoint</programlisting>
                         </para>
                     </step>
                     <step>
@@ -216,30 +296,35 @@ $ cd /usr/local/vis_counterpoint</programlisting>
                             Install the "web-vis" requirements.<programlisting>$ sudo pip install -r web-vis/requirements.txt</programlisting>
                         </para>
                     </step>
-                    <step>
-                        <para>
-                            Run the "web-vis" automated tests.<programlisting>$ ????????????????????????</programlisting>Oh, we don't have any.
-                        </para>
-                    </step>
                 </procedure>
             </section>
         </section>
 
 	<section id="sect-configure_software">
 		<title>Configure the Web App</title>
-            <section>
+            <section id="sect-configure_httpd">
                 <title>Configure the Counterpoint Web App with Apache</title>
-                <para>
-                    - install mod_wsgi for apache2:
-                        <command>$ sudo apt-get install libapache2-mod-wsgi</command>
-                    - the LoadModule part is automatically added, and apache2 is restarted
-                    - rewrite the VirtualHost block in <filename>/etc/apache2/sites-available/default</filename>:
-                        - WSGIScriptAlias first_thing second_thing
-                            *** the first thing is the URL path; use / for the root, or something without trailing slash
-                            *** the second thing is obvs the django_vis thing (must be full pathname, not python module)
-                        - add Directory to allow apache to access the vis source code
-                        - because I'm using the URL root, I have to add "Alias" directives for favicon, robots, and humans
-                        - you get something like this...
+                <procedure>
+                    <step>
+                        <para>Install mod_wsgi for apache2: <command>$ sudo apt-get install libapache2-mod-wsgi</command></para>
+                        <para>The LoadModule part is automatically added, and apache2 is restarted.</para>
+                    </step>
+                    <step>
+                        <para>Rewrite the VirtualHost block in <filename>/etc/apache2/sites-available/default</filename>:</para>
+                        <substeps>
+                            <step>
+                                <para>WSGIScriptAlias first_thing second_thing.</para>
+                                <para>The first_thing is the URL path; use <filename>/</filename> for the root. This must not end with a trailing slash.</para>
+                                <para>The second_thing is the path to the django_vis directory. It must be the full pathname, not the python module.</para>
+                            </step>
+                            <step>
+                                <para>Add Directory to allow apache to access the vis source code.</para>
+                            </step>
+                            <step>
+                                <para>Because I'm using the URL root, I have to add "Alias" directives for favicon, robots, and humans.</para>
+                            </step>
+                            <step>
+                                <para>You get something like this:</para>
 <programlisting><![CDATA[
 <VirtualHost *:80>
     ServerName counterpoint.elvisproject.ca
@@ -262,59 +347,87 @@ $ cd /usr/local/vis_counterpoint</programlisting>
     ErrorLog ${APACHE_LOG_DIR}/vis_error.log
     CustomLog ${APACHE_LOG_DIR}/vis_access.log common
 </VirtualHost>
-]]></programlisting>
-                    - restart apache2:
-                        <command>$ sudo service apache2 restart</command>
-                </para>
+]]></programlisting></step></substeps></step>
+                    <step>
+                        <para>Restart apache2: <command>$ sudo service apache2 restart</command></para>
+                    </step>
+                </procedure>
             </section>
 
-            <section>
-                <title>Configure the Web App because We Said So</title>
+            <section id="sect-configure_cwa">
+                <title>Configure the Web App</title>
                 <para>
-*** NB: in settings.py, I changed the follwing lines (which is totally not ideal)
+                    For final deployment, adjust the following settings.
+                </para>
+                <procedure>
+                    <step>
+                        <para>In <filename>settings.py</filename>.</para>
 <programlisting>
 'NAME': '/usr/local/vis_counterpoint/runtime/database.sqlite3',
 ...
 MEDIA_ROOT = '/usr/local/vis_counterpoint/runtime/outputs/'
 ...
 MEDIA_URL = 'http://counterpoint.elvisproject.ca/media/'
-</programlisting>
-*** NB: in wsgi.py, I added things to the sys.path (which is totally not ideal)
+...
+ALLOWED_HOSTS = ['counterpoint.elvisproject.ca']
+...
+DEBUG = False
+...
+SECRET_KEY = ''  # 40 pseudo-random characters
+</programlisting></step>
+<step><para>Uncomment the following lines in <filename>wsgi.py</filename>.</para>
 <programlisting>
-import sys
-sys.path.insert(0, '/usr/local/vis_counterpoint/web-vis')
-sys.path.insert(1, '/usr/local/vis_counterpoint')
-</programlisting>
-- edit vis/workflow.py, changing
+import imp
+try:
+    imp.find_module('django_vis')
+except ImportError:
+    import sys
+    sys.path.insert(0, '/usr/local/vis_counterpoint/web-vis')
+</programlisting></step>
+                    <step>
+                        <para>
+                            If you installed VIS and the CWA with <package>virtualenv</package>, uncomment the following lines from <filename>wsgi.py</filename>.
 <programlisting>
-_R_bar_chart_path = u'scripts/R_bar_chart.r'
-... to...
-_R_bar_chart_path = u'/usr/local/vis_counterpoint/vis/scripts/R_bar_chart.r'
+activate_this = '/usr/local/vis_counterpoint/cwa_virtualenv/bin/activate_this.py'
+execfile(activate_this, dict(__file__=activate_this))
 </programlisting>
-** remove unused apache modules?
-                </para>
+                        </para>
+                    </step>
+                </procedure>
             </section>
 
-            <section>
+            <section id="sect-configure_other">
                 <title>Other Things</title>
-                <para>
-                    - TODO: properly set the timezone (somehow it's an hour behind)
-                    - make sure <filename>/tmp/music21</filename> is owned by www-data:www-data with read/write 744 permissions
-                        - TODO: figure out how to change the "scratch files" directory without using the <filename>~/.music21rc</filename> file
-                    - make the VIS temp directories:
-                        <command>$ sudo mkdir /usr/local/vis_counterpoint</command>
-                        <command>$ sudo mkdir /usr/local/vis_counterpoint/outputs</command>
-                        <command>$ sudo chown -R www-data:www-data /usr/local/vis_counterpoint</command>
-                    - have to run "python manage.py syncdb" to create the sqlite3 database file
-                        <command>$ sudo passwd www-data</command> (to something easy)
-                        <command>$ su www-data</command>
-                        <command>$ python manage.py syncdb</command> (choose "no" when asked about "superusers")
-                        <command>$ exit</command>
-                        <command>$ sudo service apache2 restart</command>
-                        <command>$ sudo passwd www-data</command> (to something incredibly difficult)
-                        *** TODO: this is such a hack!
-                        *** TODO: set the FQDN
-                </para>
+                <procedure>
+                    <step>
+                        <para>Set the timezone.</para>
+                    </step>
+                    <step>
+                        <para>Make sure <filename>/tmp/music21</filename> is owned by www-data:www-data with read/write 744 permissions.</para>
+                    </step>
+                    <step>
+                        <para>TODO: figure out how to change the "scratch files" directory without using the <filename>~/.music21rc</filename> file.</para>
+                    </step>
+                    <step>
+                        <para>Make the VIS temp directories:</para>
+                        <substeps>
+                            <step><para><command>$ sudo mkdir /usr/local/vis_counterpoint</command></para></step>
+                            <step><para><command>$ sudo mkdir /usr/local/vis_counterpoint/outputs</command></para></step>
+                            <step><para><command>$ sudo chown -R www-data:www-data /usr/local/vis_counterpoint</command></para></step>
+                        </substeps>
+                    </step>
+                    <step>
+                        <para>Use this terribly hacky way to create the sqlite3 database file:</para>
+                        <substeps>
+                            <step><para><command>$ sudo passwd www-data</command> (to something easy)</para></step>
+                            <step><para><command>$ su www-data</command></para></step>
+                            <step><para><command>$ python manage.py syncdb</command> (choose "no" when asked about "superusers")</para></step>
+                            <step><para><command>$ exit</command></para></step>
+                            <step><para><command>$ sudo service apache2 restart</command></para></step>
+                            <step><para><command>$ sudo passwd www-data</command> (to something incredibly difficult)</para></step>
+                        </substeps>
+                    </step>
+                </procedure>
             </section>
         </section>
 

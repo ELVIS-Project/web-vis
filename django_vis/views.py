@@ -5,9 +5,9 @@
 # Program Description:    Web-based User Interface for vis
 #
 # Filename:               django-vis/views.py
-# Purpose:                ????
+# Purpose:                Holds views for the Counterpoint Web App
 #
-# Copyright (C) 2013 Jamie Klassen, Saining Li
+# Copyright (C) 2013 to 2014 Jamie Klassen, Saining Li, and Christopher Antila
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -22,9 +22,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #--------------------------------------------------------------------------------------------------
+"Holds views for the Counterpoint Web App"
 
 import traceback
 import os
+import time
 import simplejson as json
 from django.views import generic
 from django.conf import settings
@@ -34,7 +36,7 @@ from jsonview import decorators
 import settings
 from vis.workflow import WorkflowManager
 
-from django_vis.models import Piece
+from django_vis.models import Piece, ResultLocation
 
 @decorators.json_view
 def import_files(request):
@@ -51,7 +53,30 @@ def import_files(request):
          "Repeat Identical": False}
         for i in xrange(len(wf))
     ], 200
-    
+
+def save_results(user_id, pathname, result_type):
+    """
+    Given the user_id (session ID), pathname to a result, and the type of the result, save the
+    result in the database. First, we delete all previous results of the same type for this user.
+    """
+    # delete previous table ResultLocation instances
+    old_results = ResultLocation.objects.filter(user_id=user_id, result_type=result_type)
+    for each_result in old_results:
+        each_result.delete()
+    # make a new table ResultLocation
+    location = ResultLocation()
+    location.user_id = user_id
+    location.save()
+    location.result_type = result_type
+    location.save()
+    if 'table' == result_type:
+        location.pathname = pathname
+        location.save()
+    else:  # 'graph' == result_type
+        splitted = pathname.split('/')
+        location.pathname = '%s%s/%s' % (settings.MEDIA_URL, splitted[-2], splitted[-1])
+        location.save()
+
 @decorators.json_view
 def run_experiment(request):
     wf = request.session['wf']
@@ -68,37 +93,71 @@ def run_experiment(request):
     wf.settings(None, 'interval quality', interval_quality)
     wf.settings(None, 'simple intervals', simple_intervals)
     # run experiment
-    experiment = 'intervals' if request.GET['experiment'] == 'intervals' else 'interval n-grams'
+    output = request.GET['output']
+    if 'intervals' == request.GET['experiment']:
+        experiment = 'intervals'
+    elif 'interval n-grams' == request.GET['experiment']:
+        experiment = 'interval n-grams'
+    else:
+        # default experiment; it's the one with less work... just to avoid a crash
+        experiment = 'intervals'
+    if 'lilypond' == output:
+        # output('LilyPond') requires not counting frequency
+        wf.settings(None, 'count frequency', False)
     n = None if request.GET['n'] == '' else int(request.GET['n'])
     topx = None if request.GET['topx'] == '' else int(request.GET['topx'])
     threshold = None if request.GET['threshold'] == '' else int(request.GET['threshold'])
-    output = request.GET['output']
     if request.GET['experiment'] == 'intervals':
         wf.run('intervals')
     else:
         wf.settings(0, 'n', n)
         wf.run('interval n-grams')
-    # produce output
-    filename = request.session.session_key
+
+    # Produce Output
+    # filename should be time-based, so users see less of a mess
+    # TODO: this should really use the 'tempfile' module
+    # TODO: I should also try to handle errors
+    directory = os.path.join(settings.MEDIA_ROOT, request.session.session_key)
+    if not os.path.exists(directory):
+        os.mkdir(directory)
+    elif not os.path.isdir(directory):
+        os.remove(directory)
+        os.mkdir(directory)
+
+    filename = str(time.time()).replace('.', '')
+    filename = os.path.join(directory, filename)
+
+    rendered_paths = None
+
     if output == 'table':
-        filename = filename + '.html'
-        wf.export('HTML', "%s%s" % (settings.MEDIA_ROOT, filename), top_x=topx, threshold=threshold)
+        post = wf.export('HTML', '%s.html' % filename, top_x=topx, threshold=threshold)
+        save_results(request.session.session_key, post, output)
     elif output == 'graph':
-        wf.output('R histogram', "%s%s" % (settings.MEDIA_ROOT, filename), top_x=topx, threshold=threshold)
-        filename = filename + '.png'
+        post = wf.output('R histogram', '%s' % filename, top_x=topx, threshold=threshold)
+        save_results(request.session.session_key, post, output)
+    elif output == 'lilypond':
+        paths = wf.output('LilyPond', filename, top_x=topx, threshold=threshold)
+
+        # prepare the URLs we'll return
+        rendered_paths = []
+        for each in paths:
+            rendered_paths.append('%s%s/%s.pdf' % (settings.MEDIA_URL, each.split('/')[-2], each.split('/')[-1][:-3]))
     else:
-        pass
-    return {'type': output}, 200
+        # no experiment was run
+        pass  # TODO: return something not-200
+
+    return {'type': output, 'rendered_paths': rendered_paths}, 200
             
 def output_table(request):
-    filename = request.session.session_key + '.html'
-    table = open("%s%s" % (settings.MEDIA_ROOT, filename)).read()
+    location = ResultLocation.objects.filter(user_id=request.session.session_key, result_type='table')
+    table = open(location[0].pathname).read()
     return render_to_response('table.html', {'table': table})
     
-def output_graph(request, filename=None):
-    filename = request.session.session_key + '.png'
+def output_graph(request):
+    location = ResultLocation.objects.filter(user_id=request.session.session_key, result_type='graph')
+    filename = location[0].pathname
     return render_to_response('graph.html', context_instance=RequestContext(request, {'filename': filename}))
-    
+
 @decorators.json_view
 def upload(request):
     # Handle file upload

@@ -26,11 +26,15 @@
 
 # Django settings for django_vis project.
 import os
+import vis  # used to know the VIS Framework's version
 
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+
+CWA_VERSION = '1.0.0'
+VIS_VERSION = str(vis.__version__)
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -47,7 +51,7 @@ DATABASES = {
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-#ALLOWED_HOSTS = ['counterpoint.elvisproject.ca']
+ALLOWED_HOSTS = ['localhost']  # DEBUG
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -74,6 +78,8 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
+# NOTE: with sufficiently-new systemd deployments (Fedora 19, RHEL7, etc.), this is automatically
+#       changed to '/tmp/systemd-private-XXXX/tmp/vis/outputs/'
 MEDIA_ROOT = '/tmp/vis/outputs/'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
