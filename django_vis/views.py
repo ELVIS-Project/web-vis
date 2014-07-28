@@ -115,8 +115,7 @@ def run_experiment(request):
 
     # Produce Output
     # filename should be time-based, so users see less of a mess
-    # TODO: this should really use the 'tempfile' module
-    # TODO: I should also try to handle errors
+    # TODO: read the django docs about "file uploads"
     directory = os.path.join(settings.MEDIA_ROOT, request.session.session_key)
     if not os.path.exists(directory):
         os.mkdir(directory)
