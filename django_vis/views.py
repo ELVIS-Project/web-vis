@@ -143,6 +143,27 @@ def run_experiment(request):
             rendered_paths.append('{}{}/{}.pdf'.format(settings.MEDIA_URL,
                                                        each.split('/')[-2],
                                                        each.split('/')[-1][:-3]))
+    elif output == 'csv':
+        path = workm.output('CSV', filename, top_x=topx, threshold=threshold)
+
+        # prepare the URL we'll return
+        rendered_paths = ['{}{}/{}'.format(settings.MEDIA_URL,
+                                           path.split('/')[-2],
+                                           path.split('/')[-1])]
+    elif output == 'excel':
+        path = workm.output('Excel', filename, top_x=topx, threshold=threshold)
+
+        # prepare the URL we'll return
+        rendered_paths = ['{}{}/{}'.format(settings.MEDIA_URL,
+                                           path.split('/')[-2],
+                                           path.split('/')[-1])]
+    elif output == 'stata':
+        path = workm.output('Stata', filename, top_x=topx, threshold=threshold)
+
+        # prepare the URL we'll return
+        rendered_paths = ['{}{}/{}'.format(settings.MEDIA_URL,
+                                           path.split('/')[-2],
+                                           path.split('/')[-1])]
     else:
         # no experiment was run
         pass  # TODO: return something not-200
