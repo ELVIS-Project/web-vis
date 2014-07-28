@@ -188,3 +188,13 @@ LOGGING = {
         },
     }
 }
+
+# for django-jsonview
+JSON_MODULE = 'ujson'
+JSON_USE_DJANGO_SERIALIZER = False
+
+# Unfortunately for security, we must use the PickleSerializer. The default is JSON, but
+# WorkflowManager instances aren't JSON serializable because the music21.stream.Stream objects it
+# holds as cache are not (yet) JSON serializable.
+# https://docs.djangoproject.com/en/1.7/topics/http/sessions/#session-serialization
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'

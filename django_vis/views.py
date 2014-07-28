@@ -26,7 +26,7 @@
 
 import os
 import time
-import simplejson as json
+import ujson as json
 from django.views import generic
 from django.conf import settings
 from django.shortcuts import render_to_response
