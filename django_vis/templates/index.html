@@ -91,7 +91,7 @@
                     case 1:
                         $.ajax({
                             method: 'get',
-                            url: '/api/import',
+                            url: '/import',
                             data: {
                                 'filenames': _.map(files_list.items(),
                                         function (element) { return element.Filename; })
@@ -119,7 +119,7 @@
             $("#wizard").on('finished', function() { // this is the "visualize" button
                 $.ajax({
                     method: 'get',
-                    url: '/api/experiment',
+                    url: '/experiment',
                     data: {
                         'quality': $("input[name=qualityRadio]:checked").val(), 
                         'octaves': $("input[name=octaveRadio]:checked").val(),

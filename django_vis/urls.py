@@ -39,8 +39,8 @@ from . import views
 urlpatterns = patterns(
     '',
     url(r'^$', views.MainView.as_view(), name='main'),
-    url(r'^api/import/?$', views.import_files, name='import'),
-    url(r'^api/experiment/?$', views.run_experiment, name='experiment'),
+    url(r'^import/?$', views.import_files, name='import'),
+    url(r'^experiment/?$', views.run_experiment, name='experiment'),
     url(r'^output/table/?$', views.output_table, name='table'),
     url(r'^output/graph/?$', views.output_graph, name='graph'),
     url(r'^upload/$', views.upload),
