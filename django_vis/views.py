@@ -24,7 +24,6 @@
 #--------------------------------------------------------------------------------------------------
 "Holds views for the Counterpoint Web App"
 
-import traceback
 import os
 import time
 import simplejson as json
@@ -40,18 +39,22 @@ from django_vis.models import Piece, ResultLocation
 
 @decorators.json_view
 def import_files(request):
+    """
+    Called with the /api/import URL to load files into the WorkflowManager and return the metadata
+    it discovers.
+    """
     filepaths = [piece.file.path for piece in Piece.objects.filter(user_id=request.session.session_key)]
-    wf = WorkflowManager(filepaths)
-    wf.load('pieces')
-    request.session['wf'] = wf
+    workm = WorkflowManager(filepaths)
+    workm.load('pieces')
+    request.session['workm'] = workm
     return [
-        {"Filename": os.path.basename(wf.metadata(i, 'pathname')),
-         "Title": wf.metadata(i, 'title'),
-         "Part Names": wf.metadata(i, 'parts'),
+        {"Filename": os.path.basename(workm.metadata(i, 'pathname')),
+         "Title": workm.metadata(i, 'title'),
+         "Part Names": workm.metadata(i, 'parts'),
          "Offset": None,
          "Part Combinations": None,
          "Repeat Identical": False}
-        for i in xrange(len(wf))
+        for i in xrange(len(workm))
     ], 200
 
 def save_results(user_id, pathname, result_type):
@@ -79,39 +82,36 @@ def save_results(user_id, pathname, result_type):
 
 @decorators.json_view
 def run_experiment(request):
-    wf = request.session['wf']
+    """
+    Called with the /api/experiment URL to run the analysis and prepare the output.
+    """
+    workm = request.session['workm']
     # Set metadata and settings
     updated_pieces = json.loads(request.GET['updated_pieces'])
     interval_quality = True if request.GET['quality'] == 'display' else False
     simple_intervals = True if request.GET['octaves'] == 'simple' else False
     for (i, piece) in enumerate(updated_pieces):
-        wf.metadata(i, 'title', piece['title'])
-        wf.metadata(i, 'parts', piece['partNames'])
-        wf.settings(i, 'offset interval', None if piece['offset']=='' else float(piece['offset']))
-        wf.settings(i, 'voice combinations', piece['partCombinations'])
-        wf.settings(i, 'filter repeats', piece['repeatIdentical'])
-    wf.settings(None, 'interval quality', interval_quality)
-    wf.settings(None, 'simple intervals', simple_intervals)
+        workm.metadata(i, 'title', piece['title'])
+        workm.metadata(i, 'parts', piece['partNames'])
+        workm.settings(i, 'offset interval', None if piece['offset'] == '' else float(piece['offset']))
+        workm.settings(i, 'voice combinations', piece['partCombinations'])
+        workm.settings(i, 'filter repeats', piece['repeatIdentical'])
+    workm.settings(None, 'interval quality', interval_quality)
+    workm.settings(None, 'simple intervals', simple_intervals)
     # run experiment
     output = request.GET['output']
-    if 'intervals' == request.GET['experiment']:
-        experiment = 'intervals'
-    elif 'interval n-grams' == request.GET['experiment']:
-        experiment = 'interval n-grams'
-    else:
-        # default experiment; it's the one with less work... just to avoid a crash
-        experiment = 'intervals'
     if 'lilypond' == output:
         # output('LilyPond') requires not counting frequency
-        wf.settings(None, 'count frequency', False)
+        workm.settings(None, 'count frequency', False)
     n = None if request.GET['n'] == '' else int(request.GET['n'])
     topx = None if request.GET['topx'] == '' else int(request.GET['topx'])
     threshold = None if request.GET['threshold'] == '' else int(request.GET['threshold'])
-    if request.GET['experiment'] == 'intervals':
-        wf.run('intervals')
+
+    if request.GET['experiment'] == 'interval n-grams':
+        workm.settings(0, 'n', n)
+        workm.run('interval n-grams')
     else:
-        wf.settings(0, 'n', n)
-        wf.run('interval n-grams')
+        workm.run('intervals')
 
     # Produce Output
     # filename should be time-based, so users see less of a mess
@@ -130,64 +130,86 @@ def run_experiment(request):
     rendered_paths = None
 
     if output == 'table':
-        post = wf.export('HTML', '%s.html' % filename, top_x=topx, threshold=threshold)
+        post = workm.export('HTML', '%s.html' % filename, top_x=topx, threshold=threshold)
         save_results(request.session.session_key, post, output)
     elif output == 'graph':
-        post = wf.output('R histogram', '%s' % filename, top_x=topx, threshold=threshold)
+        post = workm.output('R histogram', '%s' % filename, top_x=topx, threshold=threshold)
         save_results(request.session.session_key, post, output)
     elif output == 'lilypond':
-        paths = wf.output('LilyPond', filename, top_x=topx, threshold=threshold)
+        paths = workm.output('LilyPond', filename, top_x=topx, threshold=threshold)
 
         # prepare the URLs we'll return
         rendered_paths = []
         for each in paths:
-            rendered_paths.append('%s%s/%s.pdf' % (settings.MEDIA_URL, each.split('/')[-2], each.split('/')[-1][:-3]))
+            rendered_paths.append('{}{}/{}.pdf'.format(settings.MEDIA_URL,
+                                                       each.split('/')[-2],
+                                                       each.split('/')[-1][:-3]))
     else:
         # no experiment was run
         pass  # TODO: return something not-200
 
     return {'type': output, 'rendered_paths': rendered_paths}, 200
-            
+
 def output_table(request):
+    """
+    Called with the /output/table URL to fetch a table.
+    """
     location = ResultLocation.objects.filter(user_id=request.session.session_key, result_type='table')
     table = open(location[0].pathname).read()
     return render_to_response('table.html', {'table': table})
-    
+
 def output_graph(request):
+    """
+    Called with the /output/graph URL to fetch a graph.
+    """
     location = ResultLocation.objects.filter(user_id=request.session.session_key, result_type='graph')
     filename = location[0].pathname
-    return render_to_response('graph.html', context_instance=RequestContext(request, {'filename': filename}))
+    return render_to_response('graph.html',
+                              context_instance=RequestContext(request, {'filename': filename}))
 
 @decorators.json_view
 def upload(request):
-    # Handle file upload
+    """
+    Called from the /upload URL to upload some files.
+    """
     if request.session.session_key == None:
         request.session.save()
     if request.method == 'POST':
-        for file in request.FILES.getlist('files'):
+        for filename in request.FILES.getlist('files'):
             piece = Piece()
             piece.user_id = request.session.session_key
             piece.save()
-            piece.file = file
+            piece.file = filename
             piece.save()
-    uploaded = [os.path.basename(piece.file.name) for piece in Piece.objects.filter(user_id=request.session.session_key)]
+    uploaded = [os.path.basename(piece.file.name)
+                for piece in Piece.objects.filter(user_id=request.session.session_key)]
     return uploaded, 200
-    
+
 @decorators.json_view
 def delete(request):
+    """
+    Called from the /delete URL to remove a file from the list of files to import.
+    """
     delete_these = request.GET.getlist('filenames[]')
     user_pieces = Piece.objects.filter(user_id=request.session.session_key)
     for piece in user_pieces:
         if os.path.basename(piece.file.name) in delete_these:
             piece.delete()
             piece.file.storage.delete(piece.file.path)
-    uploaded = [os.path.basename(piece.file.name) for piece in Piece.objects.filter(user_id=request.session.session_key)]
+    uploaded = [os.path.basename(piece.file.name)
+                for piece in Piece.objects.filter(user_id=request.session.session_key)]
     return uploaded, 200
-    
+
 class MainView(generic.TemplateView):
+    """
+    Shows the main GUI thing.
+    """
     template_name = 'index.html'
 
     def get_context_data(self, **kwargs):
+        """
+        Gets context data.
+        """
         context = super(MainView, self).get_context_data(**kwargs)
         context['settings'] = settings
         return context
