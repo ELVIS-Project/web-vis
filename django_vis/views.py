@@ -107,7 +107,7 @@ def run_experiment(request):
     topx = None if request.GET['topx'] == '' else int(request.GET['topx'])
     threshold = None if request.GET['threshold'] == '' else int(request.GET['threshold'])
 
-    if request.GET['experiment'] == 'interval n-grams':
+    if request.GET['experiment'] == 'interval-n-grams':
         workm.settings(0, 'n', n)
         workm.run('interval n-grams')
     else:
