@@ -28,7 +28,7 @@
                                             }
                                         });
                                     }
-                                  } 
+                                  }
                                 ],
                     "sSelectedClass": "selected",
                     "fnRowSelected": function (nodes) {
@@ -43,6 +43,7 @@
                 },
                 "bPaginate": false,
             });
+
             $("#pieces-list").dataTable({
                 "aoColumns": [
                     {"sTitle": "Filename", "mData": "filename"},
@@ -69,13 +70,16 @@
                 },
                 "bPaginate": false,
             });
+
             var wizard = new Wizard();
             var files_list = new ListOfFiles();
             var pieces_list = new ListOfPieces();
+
             ko.applyBindings(wizard, document.getElementById('wizard'));
             ko.applyBindings(files_list, document.getElementById('import'));
             ko.applyBindings(pieces_list, document.getElementById('analysis-settings'));
-            // abuse the upload view to get files that are already uploaded
+
+            // pre-populate the files list with whatever files are already uploaded
             $.ajax({
                 method: 'get',
                 url: '/upload/',
@@ -86,6 +90,7 @@
                     });
                 }
             });
+
             $("#wizard").on('change', function () {
                 switch (selectedItem(this)) {
                     case 1:
@@ -108,14 +113,16 @@
                         break;
                 }
             });
-            $("#uploadForm").ajaxForm({
+
+            $("#uploadForm").ajaxForm({ // "Import" step: "Upload" button
                 success: function(filenames) {
                     files_list.items.removeAll();
-                    filenames.forEach(function(filename){
+                    filenames.forEach(function(filename) {
                         files_list.items.push({"Filename": filename})
                     });
                 }
             });
+
             $("#wizard").on('finished', function() { // this is the "visualize" button
                 $.ajax({
                     method: 'get',
@@ -182,6 +189,7 @@
                 }
                 return true;
             }
+
             $('#loading-div')
                 .hide()
                 .ajaxStart(function() {
@@ -191,6 +199,7 @@
                     $(this).hide();
                 })
             ;
+
             $("input[name=objectsRadio]:radio").change(function(radio) {
                 if($("#value-n").prop("disabled")==true) {
                     $("#value-n").prop("disabled", false);
@@ -199,6 +208,7 @@
                     $("#value-n").val("");
                 }
             });
+
             $("#offset-div :input").change(function() {
                 if ($("#offset-div :input").val() == "") {
                     $("#repeat-ident-div :checkbox").prop("checked", false);
@@ -231,7 +241,7 @@
                         form.find("#part-names-div").append(input);
                         form.find("#part-names-div").append(checkbox);
                     });
-//                     form.find("#part-comb-div :input").val(piece.partCombinations());
+                    // form.find("#part-comb-div :input").val(piece.partCombinations());
                     form.find("#repeat-ident-div :checkbox").prop("checked", piece.repeatIdentical());
                     form.show().children().show();
                 } else {
