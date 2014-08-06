@@ -438,23 +438,18 @@
                 <div id="wizard" class="wizard" data-bind="wizardStep: state">
                     <ul class="steps">
                         <li data-target="#import" class="active">
-                            <i class="icon ion-folder"></i>
                             Import
-                            <span class="chevron"></span>
                         </li>
                         <li data-target="#analysis-settings">
-                            <i class="icon ion-pie-graph"></i>
                             Analysis Settings
-                            <span class="chevron"></span>
                         </li>
                         <li data-target="#experiment-settings">
-                            <i class="icon ion-beaker"></i>
                             Experiment Settings
-                            <span class="chevron"></span></li>
+                        </li>
                     </ul>
                     <div class="actions">
                         <button type="button"
-                                class="btn btn-mini btn-next"
+                                class="btn btn-next"
                                 data-last="Visualize">
                             Next<i class="icon-arrow-right"></i></button>
                     </div>
@@ -462,18 +457,12 @@
                 <div class="step-content">
                     <div class="step-pane active" id="import">
                         <div class="well">
-                            <div class="navbar">
-                                <div class="navbar-inner">
-                                    <a class="brand">
-                                        Add files to the list so they will
-                                        be imported.
-                                    </a>
-                                </div>
-                            </div>
+                            <div class="content-title">File Import List</div>
+
                             <form action="upload/" method="post" enctype="multipart/form-data" id="uploadForm">
                                 {% csrf_token %}
                                 <input type="file" multiple="multiple" name="files" />
-                                <input type="submit" value="Upload" />
+                                <input type="submit" value="Add to List" />
                             </form>
                             <table data-bind="tableData: items"
                                    class="table display datatable"
@@ -483,32 +472,18 @@
                             </table>
                         </div>
                     </div>
+
                     <div class="step-pane" id="analysis-settings">
                         <div class="well">
-                             <div class="navbar">
-                                <div class="navbar-inner">
-                                    <a class="brand">
-                                        Select pieces and choose settings for analysis.
-                                    </a>
-                                    <ul class="nav pull-right">
-                                        <li>
-                                            <a data-toggle="modal"
-                                               href="#settings-all">
-                                                <i class="icon-ok"></i>
-                                                Global settings
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a data-toggle="modal"
-                                               href="#"
-                                               id="settings-selected-button">
-                                                <i class="icon-ok"></i>
-                                                Settings for selected
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
+                            <div class="content-title">Select pieces and choose settings for analysis.</div>
+                            <a data-toggle="modal" href="#settings-all" class="analysis-settings-btn btn">
+                                <i class="icon-ok"></i>
+                                Global Settings
+                            </a>
+                            <a data-toggle="modal" href="#" id="settings-selected-button" class="analysis-settings-btn btn">
+                                <i class="icon-ok"></i>
+                                Settings for Selected
+                            </a>
                             <div class="modal fade" 
                                  id="settings-all"
                                  tabindex="-1"
@@ -653,15 +628,10 @@
                             </table>
                         </div>
                     </div>
+
                     <div class="step-pane" id="experiment-settings">
                         <div class="well">
-                             <div class="navbar">
-                                <div class="navbar-inner">
-                                    <a class="brand">
-                                        Choose settings for the experiment.
-                                    </a>
-                                </div>
-                            </div>
+                        <div class="content-title">Choose settings for the experiment.</div>
                             <form role="form">
                                 <h4>Experiment to Run</h4>
                                 <div class="radio">

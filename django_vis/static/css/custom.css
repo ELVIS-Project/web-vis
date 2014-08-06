@@ -1,6 +1,36 @@
+/* Oxygen fonts */
+@font-face {
+  font-family: 'Oxygen-300';
+  font-style: normal;
+  font-weight: 300;
+  src: url('/static/fonts/Oxygen_300_latin.woff') format('woff');
+}
+@font-face {
+  font-family: 'Oxygen-400';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/static/fonts/Oxygen_400_latin.woff') format('woff');
+}
+@font-face {
+  font-family: 'Oxygen-700';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/static/fonts/Oxygen_700_latin.woff') format('woff');
+}
+
+/* Other stuff */
+.fuelux body, .fuelux input {
+    font-family: 'Oxygen-400';
+    color: #232629;
+}
+
+.fuelux body {
+    background-color: #fcfcfc;
+}
+
 #loading-div {
     z-index: 1060;
-    background-color: rgba(0,0,0,0.1);
+    background-color: rgba(0, 0, 0, 0.1);
     position: fixed;
     top: 0;
     right: 0;
@@ -9,7 +39,7 @@
 }
 
 .preloader {
-    position:relative;
+    position: relative;
     top: 50%;
     left: 50%;
 }
@@ -20,4 +50,136 @@
 
 .fuelux .nav li {
     line-height: 30px;
+}
+
+.fuelux .navbar-inner {
+    background-color: #eff0f1;
+    background-image: url('/static/images/ELVIS_logo_swoosh-small.png');
+    background-position: top right;
+    background-repeat: no-repeat;
+}
+
+.content-title {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.fuelux .btn-group .btn {
+    font-size: 12px;
+}
+
+.fuelux .btn:focus {
+    background: none;
+    border-color: #1cdc9a;
+}
+
+div.DTTT .btn, .actions .btn, .fuelux .btn {
+    font-family: 'Oxygen-400';
+    color: #232629;
+    background: #fcfcfc;
+    box-shadow: none;
+    border: 1.25px solid rgba(35, 38, 41, 0.2);
+    padding: 10px 20px;
+}
+
+div.DTTT .btn:hover, .actions .btn:hover, .fuelux .btn:hover {
+    border-color: #3daee9;
+    background-color: #fcfcfc;
+}
+
+div.DTTT .btn.disabled, .actions .btn.disabled, .fuelux .btn.disabled {
+    color: #232629;
+    background: #eff0f1;
+}
+
+div.DTTT .btn.disabled:hover, .actions .btn.disabled:hover, .fuelux .btn.disabled:hover {
+    color: #232629;
+    background: #eff0f1;
+}
+
+.fuelux .well {
+    background-color: #fcfcfc;
+    border: none;
+    box-shadow: none;
+    margin-bottom: 0;
+}
+
+.fuelux .wizard .actions {
+    background: none;
+    padding: 5px 20px;
+    border-left: none;
+    top: 0px;
+}
+
+.fuelux .wizard {
+    background-color: #fcfcfc;
+    padding: 5px 0;
+}
+
+.fuelux .wizard ul li:first-child {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    padding-left: 5px;
+    margin-left: 15px;
+}
+
+.fuelux .wizard ul li, .fuelux .wizard ul li.complete {
+    background: none;
+    color: rgba(35, 38, 41, 0.4);
+    padding-left: 5px;
+    margin-left: 15px;
+    padding-right: 5px;
+    margin-right: 15px;
+}
+
+.fuelux .wizard ul li:hover {
+    background: none;
+    color: #232629;
+    border-bottom: 3px solid #ed1515;
+}
+
+.fuelux .wizard ul li.complete:hover {
+    background: none;
+    color: #232629;
+    border-bottom: 3px solid #1cdc9a;
+}
+
+.fuelux .wizard ul li.active {
+    background: none;
+    border-bottom: 3px solid #3daee9;
+    color: #232629;
+}
+
+.fuelux .wizard ul li.active:hover {
+    border-bottom-color: #1cdc9a;
+}
+
+.fuelux div.wizard {
+    border: none;
+    box-shadow: none;
+}
+
+.fuelux div.step-content {
+    border: none;
+}
+
+table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1, table.dataTable tr.odd, table.dataTable tr.even {
+    background: none;
+}
+
+table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1, table.dataTable tr.odd td, table.dataTable tr.even td {
+    border-top-color: #232629;
+}
+
+table.dataTable thead th, .fuelux .table th {
+    border-bottom-color: #232629;
+    font-family: 'Oxygen-700';
+    font-weight: 700;
+}
+
+.fuelux .analysis-settings-btn {
+    margin-top: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-bottom: 30px;
 }
