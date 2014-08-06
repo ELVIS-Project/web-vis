@@ -28,7 +28,7 @@
 import os
 import vis  # used to know the VIS Framework's version
 
-PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -99,7 +99,7 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    '{}/static/'.format(PROJECT_PATH),
+    '{}/static/'.format(BASE_DIR),
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -139,7 +139,7 @@ ROOT_URLCONF = 'django_vis.urls'
 WSGI_APPLICATION = 'django_vis.wsgi.application'
 
 TEMPLATE_DIRS = (
-    '{}/templates'.format(PROJECT_PATH),
+    '{}/templates'.format(BASE_DIR),
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
