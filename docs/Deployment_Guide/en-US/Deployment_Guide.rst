@@ -247,17 +247,7 @@ dependencies.
 
 ::
 
-    pip install vis-framework --allow-external music21 --allow-unverified music21
-
-    **Note**
-
-    Current versions of pip are reluctant to install packages that are
-    not hosted on the PyPI (Python Package Index) or that are unsigned.
-    The CWA currently requires music21 version 1.7, which is not hosted
-    on the PyPI, and has no signature on the PyPI.
-
-    As of version 1.8, music21 does have an MD5 signature on the PyPI,
-    but it is hosted on another website for technical reasons.
+    pip install vis-framework
 
 Optional. Install the VIS Framework's optional requirements. Note that,
 for the Counterpoint Web App, the optional components should not be
