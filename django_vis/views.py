@@ -129,10 +129,10 @@ def run_experiment(request):
     rendered_paths = None
 
     if output == 'table':
-        post = workm.export('HTML', '%s.html' % filename, top_x=topx, threshold=threshold)
+        post = workm.output('HTML', '{}.html'.format(filename),top_x=topx, threshold=threshold)
         save_results(request.session.session_key, post, output)
     elif output == 'graph':
-        post = workm.output('R histogram', '%s' % filename, top_x=topx, threshold=threshold)
+        post = workm.output('R histogram', '{}'.format(filename), top_x=topx, threshold=threshold)
         save_results(request.session.session_key, post, output)
     elif output == 'lilypond':
         paths = workm.output('LilyPond', filename, top_x=topx, threshold=threshold)
