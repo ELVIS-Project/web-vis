@@ -1,79 +1,17 @@
-Install the Host Operating System (Ubuntu 12.04)
-================================================
+Install the Host Operating System (CentOS 7)
+============================================
 
-For all Linux distributions, you'll need to make sure that the VM will
-have access to either its own network adapter, for bridged networking,
-or to a virtual network that is accessible by computers external to the
-host. Also, it's best to use the "virtio" network adapter, if the host
+For all Linux distributions, you'll need to make sure that the VM will have access to either its
+own network adapter, for bridged networking, or to a virtual network that is accessible by
+computers external to the host. Also, it's best to use the "virtio" network adapter, if the host
 supports it
 
-Our deployment server is Ubuntu 12.04 virtual machine with lots of
-memory and some CPU space. When asked to install additional (server)
-packages, I didn't select any, because we'd probably have installed more
-software than needed, which is an unnecessary burden for many reasons.
+Our deployment server is a CentOS 7 virtual machine with lots of memory and some CPU space.
 
-Minor Customization and Install Updates
----------------------------------------
+Configure the Firewall and Ensure SELinux Is Enabled
+----------------------------------------------------
 
-Some things that I like to do, but that are entirely optional:
-
-I added "NOPASSWD" to the relevant place in ``/etc/sudoers``, because
-there's a lot of ``sudo`` and I don't like putting in my password all
-the time.
-
-I added the following lines to ``/etc/apt/sources.list``, commented the
-pre-existing lines they replace, and also commented out the "backports"
-repositories.
-
-::
-
-    deb http://mirror.ncs.mcgill.ca/ubuntu/ oneiric main restricted
-        deb http://mirror.ncs.mcgill.ca/ubuntu/ oneiric-updates main restricted
-                        
-
-I installed the VirtualBox guest additions, which you should not do
-unless you're running VirtualBox, which you shouldn't do unless you're
-just testing the Web app.
-
-Run ``$ sudo apt-get install virtualbox-guest-x11``.
-
-I updated then restarted system.
-
-Run ``$ sudo apt-get update``.
-
-Run ``$ sudo apt-get upgrade``.
-
-Run ``$ sudo init 6``.
-
-Enable the Firewall and AppArmor
---------------------------------
-
-I enabled the firewall, closing all ports but 22 and 80, which are
-required for SSH login and HTTP access respectively.
-
-    **Note**
-
-    Refer to the "Firewall" chapter of the Ubuntu Server Guide at
-    `help.ubuntu.com/12.04/serverguide/firewall.html <https://help.ubuntu.com/12.04/serverguide/firewall.html>`__
-    for more information.
-
-Run ``$ sudo ufw allow 22``.
-
-Run ``$ sudo ufw allow 80``.
-
-Run ``$ sudo ufw enable``.
-
-I ensured there were no "unconfined" processes that AppArmor should be
-confining. We recommend you confine apache2, but we do not provide
-instructions at this time.
-
-    **Note**
-
-    Refer to the "AppArmor" chapter of the Ubuntu Server Guide at
-    `help.ubuntu.com/12.04/serverguide/apparmor.html <https://help.ubuntu.com/12.04/serverguide/apparmor.html>`__
-    for more information.
-
-Run ``$ sudo apparmor_status``.
+Do that. I know everyone wants to turn off SELinux, but really?
 
 Add tmpfs for Runtime Files
 ---------------------------
@@ -86,22 +24,12 @@ your server has. In ``/etc/fstab``, add:
 
 ::
 
-    tmpfs   /usr/local/vis_counterpoint/runtime/outputs     tmpfs   size=8G,nodev,noexec,nosuid,uid=www-data,gid=www-data,mode=770     0 0
+    tmpfs   /usr/local/vis_counterpoint/runtime/outputs     tmpfs   size=8G,nodev,noexec,nosuid,uid=apache,gid=apache,mode=770     0 0
 
 Configure the Network
 ---------------------
 
-Finally, just a note about network configuration, since it was
-unexpectedly retro for me. You need to edit ``/etc/network/interfaces``
-so it looks something like this:
-
-::
-
-    iface eth0 inet static
-        address 172.16.1.55
-        gateway 172.16.1.1
-        network 172.16.1.0
-        netmask 255.255.255.0
+Do that.
 
 Install the Web App and Dependencies
 ====================================
@@ -109,35 +37,11 @@ Install the Web App and Dependencies
 Install R
 ---------
 
-Since the version of R included with Ubuntu 13.04 is too old, we
-recommend you install R from CRAN (the Comprehensive R Archive
-Network—refer to `cran.r-project.org <http://cran.r-project.org>`__ for
-more information).
-
-Add the CRAN repository mirror to ``/etc/apt/sources.list``:
+Install R. Note there are many dependencies.
 
 ::
 
-    deb http://cran.skazkaforyou.com/bin/linux/ubuntu precise/
-
-The `skazkaforyou.com <http://skazkaforyou.com>`__ mirror is run by iWeb
-in Montréal, Canada. We recommend you choose a mirror near your server
-from the list of CRAN mirrors at http://cran.r-project.org/mirrors.html.
-
-Add the CRAN package-signing key. Run
-
-::
-
-    $ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
-
-Run the following commands to install R. Note there are many
-dependencies.
-
-::
-
-    $ sudo apt-get update
-    $ sudo apt-get upgrade
-    $ sudo apt-get install r-base
+    $ sudo yum install R
 
 Finally, use R to install the ggplot2 from CRAN.
 
@@ -149,8 +53,15 @@ Finally, use R to install the ggplot2 from CRAN.
     > q()
     (do not save the workspace)
 
+Install LilyPond
+----------------
+
+This is something you must do. Do not question The Force.
+
 Install and Configure the Web Server
 ------------------------------------
+
+NOTE: this section is still about the Ubuntu-provided HTTPD server.
 
 We recommend you use the Apache HTTPD Web server, because we do. Refer
 to the "HTTPD" chapter of the Ubuntu Server Guide at
@@ -403,15 +314,15 @@ You get something like this:
 
 ::
 
-    <VirtualHost *:80>
+    <VirtualHost _default_:80>
         ServerName counterpoint.elvisproject.ca
         ServerAdmin webmaster@elvisproject.ca
         WSGIScriptAlias / /usr/local/vis_counterpoint/web-vis/django_vis/wsgi.py
-        WSGIDaemonProcess counterpoint.elvisproject.ca processes=2 threads=15 display-name=%{GROUP}
+        WSGIDaemonProcess counterpoint.elvisproject.ca processes=4 threads=15 display-name=%{GROUP}
         WSGIProcessGroup counterpoint.elvisproject.ca
         <Directory /usr/local/vis_counterpoint>
-            Order allow,deny
-            Allow from all
+            # this is for Apache 2.4; version 2.2 is different
+            Require all granted
         </Directory>
 
         DocumentRoot /var/www
@@ -421,8 +332,8 @@ You get something like this:
         Alias /favicon.ico /usr/local/vis_counterpoint/web-vis/favicon.ico
         Alias /static /usr/local/vis_counterpoint/web-vis/django_vis/static
 
-        ErrorLog ${APACHE_LOG_DIR}/vis_error.log
-        CustomLog ${APACHE_LOG_DIR}/vis_access.log common
+        ErrorLog /var/log/httpd/cwa_error.log
+        CustomLog /var/log/httpd/cwa_access.log common
     </VirtualHost>
 
 Restart apache2: ``$ sudo service apache2 restart``
@@ -436,11 +347,8 @@ In ``settings.py``.
 
 ::
 
-    'NAME': '/usr/local/vis_counterpoint/runtime/database.sqlite3',
     ...
     MEDIA_ROOT = '/usr/local/vis_counterpoint/runtime/outputs/'
-    ...
-    MEDIA_URL = 'http://counterpoint.elvisproject.ca/media/'
     ...
     ALLOWED_HOSTS = ['counterpoint.elvisproject.ca']
     ...
@@ -470,33 +378,28 @@ following lines from ``wsgi.py``.
 Other Things
 ------------
 
-Set the timezone.
-
-Make sure ``/tmp/music21`` is owned by www-data:www-data with read/write
-744 permissions.
+Make sure ``/tmp/music21`` is owned by apache:apache with read/write
+744 permissions. (NB: probably unnecessary, since systemd takes care of this)
 
 TODO: figure out how to change the "scratch files" directory without
 using the ``~/.music21rc`` file.
 
-Make the VIS temp directories:
+Prepare the VIS runtime directories and the database. It's a terrible hack.
 
-``$ sudo mkdir /usr/local/vis_counterpoint``
+::
+    $ sudo mkdir /usr/local/vis_counterpoint/web-vis/runtime
+    $ sudo chown apache:apache /usr/local/vis_counterpoint/runtime
+    $ sudo semanage fcontext -a -t httpd_sys_rw_content_t "/usr/local/vis_counterpoint/runtime(/.*)?"
+    $ sudo restorecon -v /usr/local/vis_counterpoint/runtime/*
 
-``$ sudo mkdir /usr/local/vis_counterpoint/outputs``
+    $ sudo passwd apache
+    ... to something easy
+    $ su apache
+    $ source /usr/local/vis_counterpoint/cwa_virtualenv/bin/activate
+    $ python manage.py syncdb
+    ... choose "no" when asked about a superuser account
+    $ exit
+    $ sudo passwd apache
+    ... to something incredibly difficult
 
-``$ sudo chown -R www-data:www-data /usr/local/vis_counterpoint``
-
-Use this terribly hacky way to create the sqlite3 database file:
-
-``$ sudo passwd www-data`` (to something easy)
-
-``$ su www-data``
-
-``$ python manage.py syncdb`` (choose "no" when asked about
-"superusers")
-
-``$ exit``
-
-``$ sudo service apache2 restart``
-
-``$ sudo passwd www-data`` (to something incredibly difficult)
+    $ sudo systemctl restart httpd
