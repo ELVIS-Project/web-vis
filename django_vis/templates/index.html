@@ -1,5 +1,18 @@
 {% extends 'base.html' %}
 {% block head_inject %}
+    <style>
+        /* For the error and warning message when the user selects a(n) (possibly) inappropriate
+           file. They're hidden by default, and only shown when required. */
+        .upload-error { display: none; }
+        .upload-warning { display: none; }
+
+        /* For the list of errored/warned files in the previously-mentioned box. */
+        div.alert ul { padding-top: 15px; }
+
+        /* For the button in the previously-mentioned box. */
+        .fuelux .alert .close { top: -20px; }
+    </style>
+
     <script type="text/javascript">
         $(document).ready(function () {
             $("#files-list").dataTable({
@@ -386,6 +399,108 @@
                 });
                 $("#settings-selected").modal("hide");
             });
+
+            // This function checks that all the files selected for upload are (potentially) valid
+            // and importable by music21. Importantly, it does so after the files are selected but
+            // before they are uploaded.
+            document.getElementById("fileUpload").addEventListener("change", verifyFiles, false);
+            function verifyFiles() {
+                var validExtensions = ['mei', 'xml', 'zip', 'mxl', 'capx', 'zip', 'krn', 'md',
+                                       'nwctxt', 'abc', 'nwc', 'mid', 'midi'];
+                var fileList = this.files;
+                var invalidIndices = [];  // collect the indices corresponding to invalid files in "fileList"
+                var warnedIndices = [];  // collect indices with a proper extension but missing MIME
+                                       // type, or ambiguous file extension
+
+                for (var i = 0; i < fileList.length; i++) {
+                    mimeType = fileList[i].type;
+                    extension = fileList[i].name.split('.');
+                    extension = extension[extension.length - 1];
+
+                    // Check that the file is less large the 30 million bytes (about 30 MB)
+                    if (fileList[i].size > 30000000) {
+                        invalidIndices.push(i);
+                    }
+
+                    // Check that the MIME type and extension match
+                    switch (mimeType) {
+                        case 'application/xml':
+                            // MusicXML or MEI
+                            if (extension != 'mei' && extension != 'xml') {
+                                invalidIndices.push(i);
+                            }
+                            break;
+                        case 'application/zip':
+                            // compressed MusicXML, MuseData, or capella
+                            if (extension == 'zip') {
+                                warnedIndices.push(i);  // probably MuseData, according to music21...
+                            }
+                            else if (extension != 'mxl' && extension != 'capx') {
+                                invalidIndices.push(i);
+                            }
+                            break;
+                        case 'text/plain':
+                            // **kern, MuseData, NWCTXT, or abc
+                            if (extension != 'krn' && extension != 'md' && extension != 'nwctxt' &&
+                                extension != 'abc') {
+                                invalidIndices.push(i);
+                            }
+                            break;
+                        case 'application/octet-stream':
+                            // NoteWorthyComposer binary
+                            if (extension != 'nwc') {
+                                invalidIndices.push(i);
+                            }
+                            break;
+                        case 'audio/midi':
+                            // we have full detection already, so don't check file extension
+                            break;
+                        default:
+                            // If the extension is supported by music21, we'll let the user try to
+                            // upload their file, but we'll still tell them that (because the MIME
+                            // type doesn't match) we think it will fail.
+                            if (validExtensions.indexOf(extension) > -1) {
+                                warnedIndices.push(i);
+                            }
+                            else {
+                                invalidIndices.push(i);
+                            }
+                    }
+                }
+
+                var uploadErrBox = document.getElementById('upload-error')
+                var uploadWarnBox = document.getElementById('upload-warning')
+                uploadErrBox.style.display = 'none';
+                uploadWarnBox.style.display = 'none';
+                if (invalidIndices.length > 0) {
+                    // Produce a warning so the user knows whether their files are being removed.
+                    // Unfortunately, there's no (easy?) way to remove only *some* of the files.
+                    alertMsg = '<strong>File Validation Error</strong><br/>The following files are not supported by music21, or they are too large. Please select your files again.<ul>';
+                    for (var i of invalidIndices) {
+                        alertMsg = alertMsg + '<li>' + fileList[i].name + '</li>';
+                    }
+                    alertMsg = alertMsg + '</ul><button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span></button>';
+
+                    // push the error to the error box
+                    uploadErrBox.style.display = 'block';
+                    uploadErrBox.innerHTML = alertMsg;
+
+                    // clear the FileList
+                    this.value = '';
+                }
+                else if (warnedIndices.length > 0) {
+                    // Produce a warning so the user knows whether their files are likely to fail.
+                    alertMsg = '<strong>File Validation Warning</strong><br/>These files have supported extensions, but your browser detects an invalid type. If your analysis fails, ensure these files are supported by music21.<ul>';
+                    for (var i of warnedIndices) {
+                        alertMsg = alertMsg + '<li>' + fileList[i].name + '</li>';
+                    }
+                    alertMsg = alertMsg + '</ul><button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span></button>';
+
+                    // push the error to the warning box
+                    uploadWarnBox.style.display = 'block';
+                    uploadWarnBox.innerHTML = alertMsg;
+                }
+            }
         });
     </script>
     <style>
@@ -457,10 +572,22 @@
                     <div class="step-pane active" id="import">
                         <div class="well">
                             <div class="content-title">File Import List</div>
+                            <!-- NB: the following two error things are 'display: none' by default,
+                                 so they only show up when there is a warning or error -->
+                            <!-- Error for when file extensions and types don't work. -->
+                            <div class="alert alert-danger alert-dismissible upload-error"
+                                 id="upload-error" role="alert">
+                                <!-- Anything you put here is replaced above, by verifyFiles() -->
+                            </div>
+                            <!-- Warning for when file extensions work, but types don't. -->
+                            <div class="alert alert-warning alert-dismissible upload-warning"
+                                 id="upload-warning" role="alert">
+                                <!-- Anything you put here is replaced above, by verifyFiles() -->
+                            </div>
 
                             <form action="upload/" method="post" enctype="multipart/form-data" id="uploadForm">
                                 {% csrf_token %}
-                                <input type="file" multiple="multiple" name="files" />
+                                <input id="fileUpload" type="file" multiple="multiple" name="files" accept=".krn,.mid,.midi,.xml,.mxl,.mei,.nwc,.md" />
                                 <input type="submit" value="Add to List" />
                             </form>
                             <table data-bind="tableData: items"
