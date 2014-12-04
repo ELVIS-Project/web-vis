@@ -33,7 +33,7 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-CWA_VERSION = '1.1.99-2'
+CWA_VERSION = '1.1.99-4'
 VIS_VERSION = str(vis.__version__)
 
 ADMINS = (

@@ -104,26 +104,47 @@
                 }
             });
 
-            $("#wizard").on('change', function () {
-                switch (selectedItem(this)) {
-                    case 1:
-                        $.ajax({
-                            method: 'get',
-                            url: '/import',
-                            data: {
-                                'filenames': _.map(files_list.items(),
-                                        function (element) { return element.Filename; })
-                            },
-                            dataType: "json",
-                            success: function (data, textStatus, jqXHR) {
-                                pieces_list.items.removeAll();
-                                data.forEach(function(item) {
-                                    var piece = new Piece(item['Filename'], item['Title'], item['Part Names'], item['Offset'], item['Part Combinations'], item['Repeat Identical']);
-                                    pieces_list.items.push(piece);
+            // This function is called whenever the wizard's step is changed.
+            $("#wizard").on('change', function (event, data) {
+                // If we're on the first step, going to the next step...
+                if (1 == data.step && 'next' == data.direction) {
+                    // If there are files in the upload queue, we have to warn the user that they
+                    // forgot to upload those files.
+                    if (document.getElementById("fileUpload").files.length > 0) {
+                        event.preventDefault();  // don't go to the next step
+                        alert('Yikes!\n\nIt looks like you forgot to choose "Add to List" after selecting your files.');
+                    }
+                    // If there are no files in the upload queue, but also no files already uploaded
+                    // to the server, that's still not good!
+                    else if (files_list.items().length == 0) {
+                        console.log(files_list.items());
+                        event.preventDefault();  // don't go to the next step
+                        alert('Yikes!\n\nPlease select and upload some files for analysis.');
+                    }
+                    // Otherwise, there are files uploaded to the server, and there's nothing in
+                    // the upload queue, so we're good to go!
+                    else {
+                        switch (selectedItem(this)) {
+                            case 1:
+                                $.ajax({
+                                    method: 'get',
+                                    url: '/import',
+                                    data: {
+                                        'filenames': _.map(files_list.items(),
+                                                function (element) { return element.Filename; })
+                                    },
+                                    dataType: "json",
+                                    success: function (data, textStatus, jqXHR) {
+                                        pieces_list.items.removeAll();
+                                        data.forEach(function(item) {
+                                            var piece = new Piece(item['Filename'], item['Title'], item['Part Names'], item['Offset'], item['Part Combinations'], item['Repeat Identical']);
+                                            pieces_list.items.push(piece);
+                                        });
+                                    }
                                 });
-                            }
-                        });
-                        break;
+                                break;
+                        }
+                    }
                 }
             });
 
@@ -133,6 +154,8 @@
                     filenames.forEach(function(filename) {
                         files_list.items.push({"Filename": filename})
                     });
+                    // Clear the upload queue FileList
+                    document.getElementById("fileUpload").value = '';
                 }
             });
 
