@@ -112,14 +112,14 @@
                     // forgot to upload those files.
                     if (document.getElementById("fileUpload").files.length > 0) {
                         event.preventDefault();  // don't go to the next step
-                        alert('Yikes!\n\nIt looks like you forgot to choose "Add to List" after selecting your files.');
+                        window.alert('Yikes!\n\nIt looks like you forgot to choose "Add to List" after selecting your files.');
                     }
                     // If there are no files in the upload queue, but also no files already uploaded
                     // to the server, that's still not good!
                     else if (files_list.items().length == 0) {
                         console.log(files_list.items());
                         event.preventDefault();  // don't go to the next step
-                        alert('Yikes!\n\nPlease select and upload some files for analysis.');
+                        window.alert('Yikes!\n\nPlease select and upload some files for analysis.');
                     }
                     // Otherwise, there are files uploaded to the server, and there's nothing in
                     // the upload queue, so we're good to go!
@@ -390,7 +390,7 @@
                     }
                 });
                 if (partCombo.length<2) {
-                    alert("Please select 2 or more parts.");
+                    window.alert("Please select 2 or more parts.");
                 } else {
                     var existingParts = $("#part-comb-div :input").val();
                     if (existingParts.charAt(0)=="[") {
