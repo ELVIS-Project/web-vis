@@ -201,3 +201,7 @@ SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
 # This gets rid of the warning about outdated unittests. We have none, so they aren't outdated.
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
+# Ensure sessions will only last for 6 hours. If you're doing six-hour analysis sessions, too bad.
+SESSION_COOKIE_AGE = 201200
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
