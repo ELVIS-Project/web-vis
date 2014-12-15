@@ -85,11 +85,14 @@ def run_experiment(request):
     """
     Called with the /api/experiment URL to run the analysis and prepare the output.
     """
+
     workm = request.session['workm']
+
     # Set metadata and settings
     updated_pieces = json.loads(request.GET['updated_pieces'])
     interval_quality = True if request.GET['quality'] == 'display' else False
     simple_intervals = True if request.GET['octaves'] == 'simple' else False
+    count_frequency  = True if request.GET['frequency'] == 'countFrequency' else False
     for (i, piece) in enumerate(updated_pieces):
         workm.metadata(i, 'title', piece['title'])
         workm.metadata(i, 'parts', piece['partNames'])
@@ -98,6 +101,8 @@ def run_experiment(request):
         workm.settings(i, 'filter repeats', piece['repeatIdentical'])
     workm.settings(None, 'interval quality', interval_quality)
     workm.settings(None, 'simple intervals', simple_intervals)
+    workm.settings(None, 'count frequency', count_frequency)
+
     # run experiment
     output = request.GET['output']
     if 'lilypond' == output:
@@ -143,27 +148,21 @@ def run_experiment(request):
             rendered_paths.append('{}{}/{}.pdf'.format(settings.MEDIA_URL,
                                                        each.split('/')[-2],
                                                        each.split('/')[-1][:-3]))
-    elif output == 'csv':
-        path = workm.output('CSV', filename, top_x=topx, threshold=threshold)
+    elif output in ('csv', 'excel', 'stata'):
+        changer = {'csv': 'CSV', 'excel': 'Excel', 'stata': 'Stata'}
+        paths = workm.output(changer[output], filename, top_x=topx, threshold=threshold)
 
+        rendered_paths = []
         # prepare the URL we'll return
-        rendered_paths = ['{}{}/{}'.format(settings.MEDIA_URL,
-                                           path.split('/')[-2],
-                                           path.split('/')[-1])]
-    elif output == 'excel':
-        path = workm.output('Excel', filename, top_x=topx, threshold=threshold)
-
-        # prepare the URL we'll return
-        rendered_paths = ['{}{}/{}'.format(settings.MEDIA_URL,
-                                           path.split('/')[-2],
-                                           path.split('/')[-1])]
-    elif output == 'stata':
-        path = workm.output('Stata', filename, top_x=topx, threshold=threshold)
-
-        # prepare the URL we'll return
-        rendered_paths = ['{}{}/{}'.format(settings.MEDIA_URL,
-                                           path.split('/')[-2],
-                                           path.split('/')[-1])]
+        if 1 == len(paths):
+            rendered_paths.append('{}{}/{}'.format(settings.MEDIA_URL,
+                                               paths.split('/')[-2],
+                                               paths.split('/')[-1]))
+        else:
+            for each in paths:
+                rendered_paths.append('{}{}/{}'.format(settings.MEDIA_URL,
+                                                       each.split('/')[-2],
+                                                       each.split('/')[-1]))
     else:
         # no experiment was run
         pass  # TODO: return something not-200

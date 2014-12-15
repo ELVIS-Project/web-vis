@@ -160,43 +160,59 @@
             });
 
             $("#wizard").on('finished', function() { // this is the "visualize" button
-                $.ajax({
-                    method: 'get',
-                    url: '/experiment',
-                    data: {
-                        'quality': $("input[name=qualityRadio]:checked").val(), 
-                        'octaves': $("input[name=octaveRadio]:checked").val(),
-                        'updated_pieces': ko.toJSON(pieces_list.items()),
-                        'experiment': $("input[name=objectsRadio]:checked").val(),
-                        'n': $("#value-n").val(),
-                        'topx': $("#topx").val(),
-                        'threshold': $("#threshold").val(),
-                        'output': $("input[name=outputRadio]:checked").val()
-                    },
-                    dataType: "json",
-                    async: false, // needed for chrome to open in new tab, for some reason
-                    success: function(data) {
-                        if (data['type'] == 'table')
-                        {
-                            window.open('/output/table/');
-                        }
-                        else if (data['type'] == 'graph')
-                        {
-                            window.open('/output/graph/');
-                        }
-                        else if (data['type'] == 'lilypond')
-                        {
-                            for (var i = 0; i < data['rendered_paths'].length; i++)
+                var output = $("input[name=outputRadio]:checked").val();
+                var frequency = $("input[name=frequency]:checked").val();
+
+                if (frequency == "momentByMoment" && (output == "table" ||
+                                                      output == "graph" ||
+                                                      output == "lilypond"))
+                {
+                    window.alert("You cannot choose '" + output + "' output with moment-by-moment. Sorry!");
+                }
+                else
+                {
+                    $.ajax({
+                        method: 'get',
+                        url: '/experiment',
+                        data: {
+                            'quality': $("input[name=qualityRadio]:checked").val(),
+                            'octaves': $("input[name=octaveRadio]:checked").val(),
+                            'updated_pieces': ko.toJSON(pieces_list.items()),
+                            'experiment': $("input[name=objectsRadio]:checked").val(),
+                            'n': $("#value-n").val(),
+                            'topx': $("#topx").val(),
+                            'threshold': $("#threshold").val(),
+                            'output': $("input[name=outputRadio]:checked").val(),
+                            'frequency': $("input[name=frequency]:checked").val()
+                        },
+                        dataType: "json",
+                        async: false, // needed for chrome to open in new tab, for some reason
+                        success: function(data) {
+                            if (data['type'] == 'table')
                             {
-                                window.open(data['rendered_paths'][i]);
+                                window.open('/output/table/');
                             }
-                        }
-                        else if (data['type'] == 'csv' || data['type'] == 'excel' || data['type'] == 'stata')
-                        {
-                            window.open(data['rendered_paths'][0]);
-                        }
-                    },
-                });
+                            else if (data['type'] == 'graph')
+                            {
+                                window.open('/output/graph/');
+                            }
+                            else if (data['type'] == 'lilypond')
+                            {
+                                for (var i = 0; i < data['rendered_paths'].length; i++)
+                                {
+                                    window.open(data['rendered_paths'][i]);
+                                }
+                            }
+                            else if (data['type'] == 'csv' || data['type'] == 'excel' || data['type'] == 'stata')
+                            {
+                                for (var i = 0; i < data['rendered_paths'].length; i++)
+                                {
+                                    window.open(data['rendered_paths'][i]);
+                                }
+                            }
+                        },
+                    });
+                }
             });
             
             Array.prototype.sameAs = function(array) {
@@ -800,7 +816,7 @@
                                     </span>
                                 </div>
 
-                                <h4>How to Show Results</h4>
+                                <h4>How to Show Results (TODO: limit automatically when "moment-by-moment")</h4>
                                 <div class="radio">
                                     <label>
                                         <input type="radio" name="outputRadio" value="table" checked>
@@ -852,6 +868,20 @@
                                     <span class="help-inline">
                                         Do not show results with fewer than this many occurences.
                                     </span>
+                                </div>
+
+                                <h4>Moment-by-Moment Output</h4>
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="frequency" value="countFrequency" checked>
+                                        Count Object Frequency (Number of Occurrences)
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="frequency" value="momentByMoment">
+                                        Moment-by-Moment Output
+                                    </label>
                                 </div>
                             </form>
                         </div>
