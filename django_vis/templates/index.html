@@ -146,6 +146,11 @@
                         }
                     }
                 }
+                else if (2 == data.step && 'next' == data.direction) { // from the second step going to the third
+                    // Disable the button that allows downloading query settings, since a query
+                    // won't yet have been run.
+                    document.getElementById("btn-query_settings").disabled = true;
+                }
             });
 
             $("#uploadForm").ajaxForm({ // "Import" step: "Upload" button
@@ -210,6 +215,9 @@
                                     window.open(data['rendered_paths'][i]);
                                 }
                             }
+                            // Enable the button that allows downloading query settings, since that
+                            // now makes sense.
+                            document.getElementById("btn-query_settings").disabled = false;
                         },
                     });
                 }
@@ -540,6 +548,19 @@
                     uploadWarnBox.innerHTML = alertMsg;
                 }
             }
+
+            // This is the button that lets users download the query settings.
+            $("#btn-query_settings").click(function() {
+                $.ajax({
+                        method: 'get',
+                        url: '/output/settings/',
+                        dataType: 'json',
+                        // async: false, // needed for chrome to open in new tab, for some reason
+                        success: function(data) {
+                                window.open(data['settings file']);
+                            },
+                    });
+            });
         });
     </script>
     <style>
@@ -883,6 +904,10 @@
                                         Moment-by-Moment Output
                                     </label>
                                 </div>
+
+                                <h4>Query Settings</h4>
+                                After you visualize some results, you may download a text file with all the settings:<br/>
+                                <button disabled="true" type="button" name="querySettings" id="btn-query_settings">Download</button>
                             </form>
                         </div>
                     </div>

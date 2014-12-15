@@ -80,6 +80,74 @@ def save_results(user_id, pathname, result_type):
         location.pathname = '%s%s/%s' % (settings.MEDIA_URL, splitted[-2], splitted[-1])
         location.save()
 
+def make_settings_file(workm, request):
+    """
+    Given a :class:`WorkflowManager`, produce a unicode string with the query settings. The string
+    can then be saved to a file, as required.
+    """
+    # This is what I want it to look like:
+    # ------------------------------------
+    # Query Settings from the ELVIS Counterpoint Web App
+    # http://counterpoint.elvisproject.ca/
+    #
+    # Counterpoint Web App version 1.2.0
+    # VIS Framework 2.1.0
+    #
+    # Query Date: 2014/12/15
+    #
+    # VIS Shared Settings:
+    # - n: 2
+    # - continuer: dynamic quality
+    # - mark singles: False
+    # - interval quality: False
+    # - simple intervals: False
+    # - include rests: False
+    # - count frequency: True
+    #
+    # Counterpoint Web App Settings:
+    # - experiment: interval n-grams
+    # - output format: graph
+    # - top x: None
+    # - threshold: None
+    #
+    # VIS Per-Piece Settings:
+    # - piece 0:
+    #       - offset interval: None
+    #       - voice combinations: None
+    #       - filter repeats: False
+    # - piece 1:
+    #       - offset interval: None
+    #       - voice combinations: None
+    #       - filter repeats: False
+
+    post = []
+    post.append(u'Query Settings from the ELVIS Counterpoint Web App\nhttp://counterpoint.elvisproject.ca/\n\n')
+    post.append(u'Counterpoint Web App version {}\n'.format(settings.CWA_VERSION))
+    post.append(u'VIS Framework {}\n\n'.format(settings.VIS_VERSION))
+    the_time = time.localtime()
+    post.append(u'Query Date: {}/{}/{}\n\n'.format(the_time.tm_year, the_time.tm_mon, the_time.tm_mday))
+    post.append(u'VIS Shared Settings:\n')
+    post.append(u'- n: {}\n'.format(workm.settings(None, 'n')))
+    post.append(u'- continuer: {}\n'.format(workm.settings(None, 'continuer')))
+    post.append(u'- mark singles: {}\n'.format(workm.settings(None, 'mark singles')))
+    post.append(u'- interval quality: {}\n'.format(workm.settings(None, 'interval quality')))
+    post.append(u'- simple intervals: {}\n'.format(workm.settings(None, 'simple intervals')))
+    post.append(u'- include rests: {}\n'.format(workm.settings(None, 'include rests')))
+    post.append(u'- count frequency: {}\n\n'.format(workm.settings(None, 'count frequency')))
+    post.append(u'Counterpoint Web App Settings:\n')
+    post.append(u'- experiment: {}\n'.format(request.GET['experiment']))
+    post.append(u'- output format: {}\n'.format(request.GET['output']))
+    post.append(u'- top x: {}\n'.format(request.GET['topx']))
+    post.append(u'- threshold: {}\n\n'.format(request.GET['threshold']))
+    post.append(u'VIS Per-Piece Settings:\n')
+    for i in xrange(len(workm)):
+        post.append(u'- piece {} ({}):\n'.format(i, workm.metadata(i, 'title')))
+        post.append(u'\t- offset interval: {}\n'.format(workm.settings(i, 'offset interval')))
+        post.append(u'\t- voice combinations: {}\n'.format(workm.settings(i, 'voice combinations')))
+        post.append(u'\t- filter repeats: {}\n'.format(workm.settings(i, 'filter repeats')))
+
+    return ''.join(post)
+
 @decorators.json_view
 def run_experiment(request):
     """
@@ -130,6 +198,13 @@ def run_experiment(request):
 
     filename = str(time.time()).replace('.', '')
     filename = os.path.join(directory, filename)
+
+    # prepare and save the file with this query's settings
+    settings_filename = '{}-settings.txt'.format(filename)
+    with open(settings_filename, mode='w') as setts_file:
+        setts_file.write(make_settings_file(workm, request))
+        # with this, the path will be accessible from the output_settings() function below
+        save_results(request.session.session_key, '{}-settings.txt'.format(filename), 'settings')
 
     rendered_paths = None
 
@@ -185,6 +260,15 @@ def output_graph(request):
     filename = location[0].pathname
     return render_to_response('graph.html',
                               context_instance=RequestContext(request, {'filename': filename}))
+
+@decorators.json_view
+def output_settings(request):
+    """
+    Called with the /output/settings/ URL to fetch the URL for the file with query settings.
+    """
+    location = ResultLocation.objects.filter(user_id=request.session.session_key, result_type='settings')
+    filename = location[0].pathname
+    return {'settings file': filename}, 200
 
 @decorators.json_view
 def upload(request):

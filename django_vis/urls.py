@@ -43,6 +43,7 @@ urlpatterns = patterns(
     url(r'^experiment/?$', views.run_experiment, name='experiment'),
     url(r'^output/table/?$', views.output_table, name='table'),
     url(r'^output/graph/?$', views.output_graph, name='graph'),
+    url(r'^output/settings/?$', views.output_settings, name='settings'),
     url(r'^upload/$', views.upload),
     url(r'^delete/$', views.delete),
     # url(r'^admin/', include(admin.site.urls)),
