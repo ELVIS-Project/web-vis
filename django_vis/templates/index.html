@@ -167,12 +167,17 @@
             $("#wizard").on('finished', function() { // this is the "visualize" button
                 var output = $("input[name=outputRadio]:checked").val();
                 var frequency = $("input[name=frequency]:checked").val();
+                var experiment = $("input[name=objectsRadio]:checked").val();
 
                 if (frequency == "momentByMoment" && (output == "table" ||
                                                       output == "graph" ||
                                                       output == "lilypond"))
                 {
                     window.alert("You cannot choose '" + output + "' output with moment-by-moment. Sorry!");
+                }
+                else if (output == "continuousLilypond" && experiment == "intervals")
+                {
+                    window.alert("You must choose the 'interval n-grams' experiment with 'Continuous LilyPond' output.");
                 }
                 else
                 {
@@ -201,7 +206,7 @@
                             {
                                 window.open('/output/graph/');
                             }
-                            else if (data['type'] == 'lilypond')
+                            else if (data['type'] == 'lilypond' || data['type'] == 'continuousLilypond')
                             {
                                 for (var i = 0; i < data['rendered_paths'].length; i++)
                                 {
@@ -854,6 +859,12 @@
                                     <label>
                                         <input type="radio" name="outputRadio" value="lilypond">
                                         Annotated Score
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="outputRadio" value="continuousLilypond">
+                                        Continuously-Annotated Score (choose interval 2-grams)
                                     </label>
                                 </div>
                                 <div class="radio">

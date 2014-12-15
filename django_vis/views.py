@@ -173,7 +173,7 @@ def run_experiment(request):
 
     # run experiment
     output = request.GET['output']
-    if 'lilypond' == output:
+    if 'lilypond' == output or 'continuousLilypond' == output:
         # output('LilyPond') requires not counting frequency
         workm.settings(None, 'count frequency', False)
     n = None if request.GET['n'] == '' else int(request.GET['n'])
@@ -216,6 +216,15 @@ def run_experiment(request):
         save_results(request.session.session_key, post, output)
     elif output == 'lilypond':
         paths = workm.output('LilyPond', filename, top_x=topx, threshold=threshold)
+
+        # prepare the URLs we'll return
+        rendered_paths = []
+        for each in paths:
+            rendered_paths.append('{}{}/{}.pdf'.format(settings.MEDIA_URL,
+                                                       each.split('/')[-2],
+                                                       each.split('/')[-1][:-3]))
+    elif output == 'continuousLilypond':
+        paths = workm.output('Continuous LilyPond', filename, top_x=topx, threshold=threshold)
 
         # prepare the URLs we'll return
         rendered_paths = []
