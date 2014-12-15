@@ -198,3 +198,6 @@ JSON_USE_DJANGO_SERIALIZER = False
 # holds as cache are not (yet) JSON serializable.
 # https://docs.djangoproject.com/en/1.7/topics/http/sessions/#session-serialization
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+
+# This gets rid of the warning about outdated unittests. We have none, so they aren't outdated.
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
